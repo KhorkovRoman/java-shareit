@@ -1,12 +1,60 @@
 package ru.practicum.shareit.item;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.Create;
+import ru.practicum.shareit.Update;
+import ru.practicum.shareit.item.dto.ItemDto;
 
-/**
- * // TODO .
- */
+import java.util.Collection;
+
+@Slf4j
 @RestController
 @RequestMapping("/items")
 public class ItemController {
+
+    private final ItemService itemService;
+
+    @Autowired
+    public ItemController(ItemService itemService) {
+        this.itemService = itemService;
+    }
+
+    @PostMapping
+    ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+                       @Validated({Create.class}) @RequestBody ItemDto itemDto) {
+        return ItemMapper.toItemDto(itemService.createItem(userId, itemDto));
+    }
+
+    @GetMapping("/{itemId}")
+    ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") int userId,
+                        @PathVariable Integer itemId) {
+        return ItemMapper.toItemDto(itemService.getItemById(itemId));
+    }
+
+    @GetMapping("/search")
+    Collection<ItemDto> searchItems(@RequestParam String text) {
+        log.info("Получен GET запрос к эндпоинту /search?text={}", text);
+        return ItemMapper.toItemDtoCollection(itemService.searchItems(text));
+    }
+
+    @GetMapping
+    Collection<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+        return ItemMapper.toItemDtoCollection(itemService.getAllItemsOfUser(userId));
+    }
+
+    @PatchMapping("/{itemId}")
+    ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") int userId,
+                       @PathVariable Integer itemId,
+                       @Validated({Update.class}) @RequestBody ItemDto itemDto) {
+        return ItemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto));
+    }
+
+    @DeleteMapping("/{itemId}")
+    void deleteItem(@RequestHeader("X-Sharer-User-Id") int userId,
+                    @PathVariable Integer itemId) {
+        itemService.deleteItem(itemId);
+    }
 }

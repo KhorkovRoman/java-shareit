@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.dto;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import lombok.*;
 @Setter
 @ToString
 @EqualsAndHashCode
-public class User {
+public class UserDto {
     private int id;
     private String name;
     private String email;
