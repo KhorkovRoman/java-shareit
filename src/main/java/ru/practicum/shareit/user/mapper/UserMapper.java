@@ -1,21 +1,19 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.mapper;
 
 import lombok.Data;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @Data
 public class UserMapper {
 
     public static Collection<UserDto> toUserDtoCollection(Collection<User> users) {
-        Collection<UserDto> usersDto = new ArrayList<>();
-
-        for (User user: users) {
-            usersDto.add(toUserDto(user));
-        }
-        return usersDto;
+        return users.stream()
+                .map(UserMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     public static UserDto toUserDto(User user) {

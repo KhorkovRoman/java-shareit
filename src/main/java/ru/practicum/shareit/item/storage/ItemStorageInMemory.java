@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @Component
 public class ItemStorageInMemory implements ItemStorage {
 
-    Map<Integer, Item> itemMap = new HashMap<>();
+    private final Map<Integer, Item> itemMap = new HashMap<>();
 
     @Override
     public Item createItem(Item item) {

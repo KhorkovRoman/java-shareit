@@ -1,12 +1,14 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.Create;
-import ru.practicum.shareit.Update;
+import ru.practicum.shareit.common.Create;
+import ru.practicum.shareit.common.Update;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.Collection;
 
@@ -15,6 +17,7 @@ import java.util.Collection;
 @RequestMapping("/items")
 public class ItemController {
 
+    private static final String USERID = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @Autowired
@@ -23,13 +26,13 @@ public class ItemController {
     }
 
     @PostMapping
-    ItemDto createItem(@RequestHeader("X-Sharer-User-Id") Integer userId,
+    ItemDto createItem(@RequestHeader(USERID) Integer userId,
                        @Validated({Create.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.createItem(userId, itemDto));
     }
 
     @GetMapping("/{itemId}")
-    ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") int userId,
+    ItemDto getItemById(@RequestHeader(USERID) int userId,
                         @PathVariable Integer itemId) {
         return ItemMapper.toItemDto(itemService.getItemById(itemId));
     }
@@ -41,19 +44,19 @@ public class ItemController {
     }
 
     @GetMapping
-    Collection<ItemDto> getAllItems(@RequestHeader("X-Sharer-User-Id") int userId) {
+    Collection<ItemDto> getAllItems(@RequestHeader(USERID) int userId) {
         return ItemMapper.toItemDtoCollection(itemService.getAllItemsOfUser(userId));
     }
 
     @PatchMapping("/{itemId}")
-    ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") int userId,
+    ItemDto updateItem(@RequestHeader(USERID) int userId,
                        @PathVariable Integer itemId,
                        @Validated({Update.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto));
     }
 
     @DeleteMapping("/{itemId}")
-    void deleteItem(@RequestHeader("X-Sharer-User-Id") int userId,
+    void deleteItem(@RequestHeader(USERID) int userId,
                     @PathVariable Integer itemId) {
         itemService.deleteItem(itemId);
     }
