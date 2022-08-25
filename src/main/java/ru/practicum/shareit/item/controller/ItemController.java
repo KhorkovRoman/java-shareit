@@ -17,7 +17,7 @@ import java.util.Collection;
 @RequestMapping("/items")
 public class ItemController {
 
-    private static final String USERID = "X-Sharer-User-Id";
+    private static final String USER_ID_HEADER = "X-Sharer-User-Id";
     private final ItemService itemService;
 
     @Autowired
@@ -26,13 +26,13 @@ public class ItemController {
     }
 
     @PostMapping
-    ItemDto createItem(@RequestHeader(USERID) Integer userId,
+    ItemDto createItem(@RequestHeader(USER_ID_HEADER) Integer userId,
                        @Validated({Create.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.createItem(userId, itemDto));
     }
 
     @GetMapping("/{itemId}")
-    ItemDto getItemById(@RequestHeader(USERID) int userId,
+    ItemDto getItemById(@RequestHeader(USER_ID_HEADER) int userId,
                         @PathVariable Integer itemId) {
         return ItemMapper.toItemDto(itemService.getItemById(itemId));
     }
@@ -44,19 +44,19 @@ public class ItemController {
     }
 
     @GetMapping
-    Collection<ItemDto> getAllItems(@RequestHeader(USERID) int userId) {
+    Collection<ItemDto> getAllItems(@RequestHeader(USER_ID_HEADER) int userId) {
         return ItemMapper.toItemDtoCollection(itemService.getAllItemsOfUser(userId));
     }
 
     @PatchMapping("/{itemId}")
-    ItemDto updateItem(@RequestHeader(USERID) int userId,
+    ItemDto updateItem(@RequestHeader(USER_ID_HEADER) int userId,
                        @PathVariable Integer itemId,
                        @Validated({Update.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto));
     }
 
     @DeleteMapping("/{itemId}")
-    void deleteItem(@RequestHeader(USERID) int userId,
+    void deleteItem(@RequestHeader(USER_ID_HEADER) int userId,
                     @PathVariable Integer itemId) {
         itemService.deleteItem(itemId);
     }
