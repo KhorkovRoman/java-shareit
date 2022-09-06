@@ -26,14 +26,14 @@ public class ItemController {
     }
 
     @PostMapping
-    ItemDto createItem(@RequestHeader(USER_ID_HEADER) Integer userId,
+    ItemDto createItem(@RequestHeader(USER_ID_HEADER) Long userId,
                        @Validated({Create.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.createItem(userId, itemDto));
     }
 
     @GetMapping("/{itemId}")
-    ItemDto getItemById(@RequestHeader(USER_ID_HEADER) int userId,
-                        @PathVariable Integer itemId) {
+    ItemDto getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
+                        @PathVariable Long itemId) {
         return ItemMapper.toItemDto(itemService.getItemById(itemId));
     }
 
@@ -44,20 +44,20 @@ public class ItemController {
     }
 
     @GetMapping
-    Collection<ItemDto> getAllItems(@RequestHeader(USER_ID_HEADER) int userId) {
-        return ItemMapper.toItemDtoCollection(itemService.getAllItemsOfUser(userId));
+    Collection<ItemDto> getAllItems(@RequestHeader(USER_ID_HEADER) Long userId) {
+        return ItemMapper.toItemDtoCollection(itemService.getAllItemsByUser(userId));
     }
 
     @PatchMapping("/{itemId}")
-    ItemDto updateItem(@RequestHeader(USER_ID_HEADER) int userId,
-                       @PathVariable Integer itemId,
+    ItemDto updateItem(@RequestHeader(USER_ID_HEADER) Long userId,
+                       @PathVariable Long itemId,
                        @Validated({Update.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto));
     }
 
     @DeleteMapping("/{itemId}")
     void deleteItem(@RequestHeader(USER_ID_HEADER) int userId,
-                    @PathVariable Integer itemId) {
+                    @PathVariable Long itemId) {
         itemService.deleteItem(itemId);
     }
 }
