@@ -22,6 +22,7 @@ public class BookingDto {
     @NotNull(groups = {Create.class})
     private Long itemId;
     private BookingStatus status;
+    private Long bookerId;
 
 
     public BookingDto(Long id, LocalDateTime start, LocalDateTime end, Long itemId) {

@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exeption.UnknownStateException;
 import ru.practicum.shareit.exeption.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
@@ -51,14 +50,21 @@ public class BookingService {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь с id " + userId));
-        validateUser(booker, userId);
         Long itemId = bookingDtoIn.getItemId();
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден предмет с id " + itemId));
+        Long ownerId = item.getOwner().getId();
+        validateUser(booker, userId);
+        if (Objects.equals(ownerId, userId)) {
+            throw new ValidationException(HttpStatus.NOT_FOUND,
+                    "Владелец предмета не может его бронировать.");
+        }
         validateItem(ItemMapper.toItemDto(item));
         bookingDtoIn.setStatus(BookingStatus.WAITING);
+
         Booking booking = BookingMapper.toBooking(generateBookingId(), booker, item, bookingDtoIn);
+
         return bookingRepository.save(booking);
     }
 
@@ -69,12 +75,22 @@ public class BookingService {
         Item item = booking.getItem();
         if (Objects.equals(item.getOwner().getId(), ownerId)) {
             if (approved) {
-                booking.setStatus(BookingStatus.APPROVED);
+                if (booking.getStatus().equals(BookingStatus.APPROVED)) {
+                    throw new ValidationException(HttpStatus.BAD_REQUEST,
+                            "Бронирование с id " + bookingId + " уже подтверждено.");
+                } else {
+                    booking.setStatus(BookingStatus.APPROVED);
+                }
             } else {
-                booking.setStatus(BookingStatus.REJECTED);
+                if (booking.getStatus().equals(BookingStatus.REJECTED)) {
+                    throw new ValidationException(HttpStatus.BAD_REQUEST,
+                            "Бронирование с id " + bookingId + " уже отменено.");
+                } else {
+                    booking.setStatus(BookingStatus.REJECTED);
+                }
             }
         } else {
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(HttpStatus.NOT_FOUND,
                 "Пользователь с id " + ownerId + " не является хозяином вещи.");
         }
         return bookingRepository.save(booking);
@@ -90,13 +106,13 @@ public class BookingService {
                 booking.getBooker().getId().equals(userId);
         if (!ownerOrBooker) {
             log.info("Пользователь с id " + userId + " не является хозяином или бронирующим вещи.");
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
+            throw new ValidationException(HttpStatus.NOT_FOUND,
                     "Пользователь с id " + userId + " не является хозяином или бронирующим вещи.");
         }
         return booking;
     }
 
-    public Collection<Booking> getBookingsByUser(Long userId, String stateText) {
+    public Collection<Booking> getBookingsByUser(Long userId, State state) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь с id " + userId));
@@ -104,28 +120,47 @@ public class BookingService {
         LocalDateTime dateTimeNow = LocalDateTime.now();
         Collection<Booking> bookingCollection = null;
 
-        try {
-            State.valueOf(stateText.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new UnknownStateException("Unknown state: " + stateText);
+        switch (state) {
+            case ALL: bookingCollection = bookingRepository.getAllBookingsByUser(userId);
+                break;
+            case CURRENT: bookingCollection = bookingRepository.getCurrentBookingsByUser(userId, dateTimeNow);
+                break;
+            case PAST: bookingCollection = bookingRepository.getPastBookingsByUser(userId, dateTimeNow);
+                break;
+            case FUTURE: bookingCollection = bookingRepository.getFutureBookingsByUser(userId, dateTimeNow);
+                break;
+            case WAITING:
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByBooker(userId, BookingStatus.WAITING);
+                break;
+            case REJECTED:
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByBooker(userId, BookingStatus.REJECTED);
+                break;
         }
-        String textStatus = "";
-        switch (stateText) {
-            case "ALL": bookingCollection = bookingRepository.getAllBookingsByUser(userId);
+        return bookingCollection;
+    }
+
+    public Collection<Booking> getBookingsByOwner(Long ownerId, State state) {
+        User user = userRepository.findById(ownerId)
+                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
+                        "Не найден пользователь с id " + ownerId));
+        validateUser(user, ownerId);
+        LocalDateTime dateTimeNow = LocalDateTime.now();
+        Collection<Booking> bookingCollection = null;
+
+        switch (state) {
+            case ALL: bookingCollection = bookingRepository.getAllBookingsByUser(ownerId);
                 break;
-            case "CURRENT": bookingCollection = bookingRepository.getCurrentBookingsByUser(userId, dateTimeNow);
+            case CURRENT: bookingCollection = bookingRepository.getCurrentBookingsByUser(ownerId, dateTimeNow);
                 break;
-            case "PAST": bookingCollection = bookingRepository.getPastBookingsByUser(userId, dateTimeNow);
+            case PAST: bookingCollection = bookingRepository.getPastBookingsByUser(ownerId, dateTimeNow);
                 break;
-            case "FUTURE": bookingCollection = bookingRepository.getFutureBookingsByUser(userId, dateTimeNow);
+            case FUTURE: bookingCollection = bookingRepository.getFutureBookingsByUser(ownerId, dateTimeNow);
                 break;
-            case "WAITING":
-                textStatus = "WAITING";
-                bookingCollection = bookingRepository.getWaitingRejectedBookingsByUser(userId, textStatus);
+            case WAITING:
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByOwner(ownerId, BookingStatus.WAITING);
                 break;
-            case "REJECTED":
-                textStatus = "REJECTED";
-                bookingCollection = bookingRepository.getWaitingRejectedBookingsByUser(userId, textStatus);
+            case REJECTED:
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByOwner(ownerId, BookingStatus.REJECTED);
                 break;
         }
         return bookingCollection;

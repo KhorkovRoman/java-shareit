@@ -22,21 +22,10 @@ public class BookingMapper {
                 booking.getStart(),
                 booking.getEnd(),
                 booking.getItem().getId(),
-                //booking.getBooker().getId(),
-                booking.getStatus()
+                booking.getStatus(),
+                booking.getBooker().getId()
         );
     }
-
-//    public static BookingDto toBookingDtoFromBookingDtoIn(BookingDtoIn bookingDtoIn) {
-//        return new BookingDto(
-//                bookingDtoIn.getId(),
-//                bookingDtoIn.getStart(),
-//                bookingDtoIn.getEnd(),
-//                bookingDtoIn.getItem().getId(),
-//                bookingDtoIn.getBooker().getId(),
-//                bookingDtoIn.getStatus()
-//        );
-//    }
 
     public static Booking toBooking(Long bookingId, User booker, Item item, BookingDtoIn bookingDtoIn) {
         return new Booking(

@@ -4,15 +4,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exeption.ValidationException;
+import ru.practicum.shareit.item.dto.CommentDtoIn;
+import ru.practicum.shareit.item.dto.CommentDtoOut;
+import ru.practicum.shareit.item.dto.ItemByIdDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
@@ -25,19 +34,51 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
     public ItemService(ItemRepository itemRepository, UserRepository userRepository,
-                       BookingRepository bookingRepository) {
+                       BookingRepository bookingRepository, CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
     }
 
     private Long itemId = 0L;
 
     public Long generateItemId() {
         return ++itemId;
+    }
+
+    private Long commentId = 0L;
+
+    public Long generateCommentId() {
+        return ++commentId;
+    }
+
+    public Comment createComment(Long authorId, Long itemId, CommentDtoIn commentDtoIn) {
+        User author = userRepository.findById(authorId)
+                .orElseThrow(() -> new RuntimeException("Не найден пользователь с id " + authorId));
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Не найден предмет с id " + itemId));
+        LocalDateTime dateTimeNow = LocalDateTime.now();
+        validateComment(authorId, itemId, commentDtoIn, dateTimeNow);
+        Comment comment = new Comment(generateCommentId(), commentDtoIn.getText(), item, author, dateTimeNow);
+        return commentRepository.save(comment);
+    }
+
+    public void validateComment(Long authorId, Long itemId, CommentDtoIn commentDtoIn, LocalDateTime dateTimeNow) {
+        if (commentDtoIn.getText().isEmpty()) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Текст комментария пустой.");
+        }
+
+        Booking booking = bookingRepository.findBookerByItemId(itemId, authorId, dateTimeNow);
+        if (booking == null) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Автор комментария не арендовал предмет.");
+        }
     }
 
     public Item createItem(Long userId, ItemDto itemDto) {
@@ -112,14 +153,41 @@ public class ItemService {
         return line.toLowerCase().contains(text.toLowerCase());
     }
 
-    public Item getItemById(Long itemId) {
-        return itemRepository.findById(itemId)
-                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "В базе нет предмета c id " + itemId));
+    @SuppressWarnings({"checkstyle:WhitespaceAround", "checkstyle:EmptyBlock"})
+    public ItemByIdDto getItemById(Long itemId, Long userId) {
+        Item item = itemRepository.findById(itemId)
+               .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
+                       "В базе нет предмета c id " + itemId));
+        LocalDateTime dateTimeNow = LocalDateTime.now();
+
+        Booking lastBooking = bookingRepository.findLastBookingsByItemId(itemId, dateTimeNow);
+        BookingDto lastBookingDto = null;
+        if (lastBooking != null) {
+            lastBookingDto = BookingMapper.toBookingDto(lastBooking);
+        }
+
+        Booking nextBooking = bookingRepository.findNextBookingsByItemId(itemId, dateTimeNow);
+        BookingDto nextBookingDto = null;
+        if (nextBooking != null) {
+            nextBookingDto = BookingMapper.toBookingDto(nextBooking);
+        }
+
+        Collection<CommentDtoOut> commentList =
+                ItemMapper.toCommentDtoOutCollection(commentRepository.getAllCommentsByItem(itemId));
+
+        if (Objects.equals(userId, item.getOwner().getId())) {
+            return ItemMapper.toItemByIdDto(item, lastBookingDto, nextBookingDto, commentList);
+        } else {
+            return ItemMapper.toItemByIdDto(item, null, null, commentList);
+        }
     }
 
-    public Collection<Item> getAllItemsByUser(Long userId) {
-        return itemRepository.getAllItemsByUser(userId);
+    public Collection<ItemByIdDto> getAllItemsByUser(Long userId) {
+
+        Collection<Item> itemCollection = itemRepository.getAllItemsByUser(userId);
+        return itemCollection.stream()
+                .map(item -> getItemById(item.getId(), userId))
+                .collect(Collectors.toList());
     }
 
     public void deleteItem(Long itemId) {

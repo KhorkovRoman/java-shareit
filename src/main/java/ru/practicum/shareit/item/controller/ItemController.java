@@ -6,6 +6,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.common.Create;
 import ru.practicum.shareit.common.Update;
+import ru.practicum.shareit.item.dto.CommentDtoIn;
+import ru.practicum.shareit.item.dto.CommentDtoOut;
+import ru.practicum.shareit.item.dto.ItemByIdDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
@@ -31,10 +34,17 @@ public class ItemController {
         return ItemMapper.toItemDto(itemService.createItem(userId, itemDto));
     }
 
+    @PostMapping("/{itemId}/comment")
+    CommentDtoOut createComment(@RequestHeader(USER_ID_HEADER) Long authorId,
+                                @PathVariable Long itemId,
+                                @Validated({Update.class}) @RequestBody CommentDtoIn commentDtoIn) {
+        return ItemMapper.toCommentDto(itemService.createComment(authorId, itemId, commentDtoIn));
+    }
+
     @GetMapping("/{itemId}")
-    ItemDto getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
-                        @PathVariable Long itemId) {
-        return ItemMapper.toItemDto(itemService.getItemById(itemId));
+    ItemByIdDto getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
+                                @PathVariable Long itemId) {
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping("/search")
@@ -44,8 +54,8 @@ public class ItemController {
     }
 
     @GetMapping
-    Collection<ItemDto> getAllItems(@RequestHeader(USER_ID_HEADER) Long userId) {
-        return ItemMapper.toItemDtoCollection(itemService.getAllItemsByUser(userId));
+    Collection<ItemByIdDto> getAllItems(@RequestHeader(USER_ID_HEADER) Long userId) {
+        return itemService.getAllItemsByUser(userId);
     }
 
     @PatchMapping("/{itemId}")
