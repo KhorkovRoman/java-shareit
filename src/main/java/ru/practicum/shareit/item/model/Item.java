@@ -11,6 +11,7 @@ import javax.persistence.*;
 @Setter
 @ToString
 @EqualsAndHashCode
+@Builder
 
 @Entity
 @Table(name = "items")

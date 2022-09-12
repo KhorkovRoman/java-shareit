@@ -41,7 +41,7 @@ public class BookingService {
 
     private Long bookingId = 0L;
 
-    public Long generateBookingId() {
+    private Long generateBookingId() {
         return ++bookingId;
     }
 
@@ -73,26 +73,25 @@ public class BookingService {
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найдено бронирование с id " + bookingId));
         Item item = booking.getItem();
-        if (Objects.equals(item.getOwner().getId(), ownerId)) {
-            if (approved) {
-                if (booking.getStatus().equals(BookingStatus.APPROVED)) {
-                    throw new ValidationException(HttpStatus.BAD_REQUEST,
-                            "Бронирование с id " + bookingId + " уже подтверждено.");
-                } else {
-                    booking.setStatus(BookingStatus.APPROVED);
-                }
-            } else {
-                if (booking.getStatus().equals(BookingStatus.REJECTED)) {
-                    throw new ValidationException(HttpStatus.BAD_REQUEST,
-                            "Бронирование с id " + bookingId + " уже отменено.");
-                } else {
-                    booking.setStatus(BookingStatus.REJECTED);
-                }
-            }
-        } else {
+        if (!Objects.equals(item.getOwner().getId(), ownerId)) {
             throw new ValidationException(HttpStatus.NOT_FOUND,
-                "Пользователь с id " + ownerId + " не является хозяином вещи.");
+                    "Пользователь с id " + ownerId + " не является хозяином вещи.");
         }
+
+        if (approved) {
+            if (booking.getStatus().equals(BookingStatus.APPROVED)) {
+                throw new ValidationException(HttpStatus.BAD_REQUEST,
+                        "Бронирование с id " + bookingId + " уже подтверждено.");
+            }
+            booking.setStatus(BookingStatus.APPROVED);
+        } else {
+            if (booking.getStatus().equals(BookingStatus.REJECTED)) {
+                throw new ValidationException(HttpStatus.BAD_REQUEST,
+                        "Бронирование с id " + bookingId + " уже отменено.");
+            }
+            booking.setStatus(BookingStatus.REJECTED);
+        }
+
         return bookingRepository.save(booking);
     }
 

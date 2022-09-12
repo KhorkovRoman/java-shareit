@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
     private Long userId = 0L;
 
-    public Long generateUserId() {
+    private Long generateUserId() {
         return ++userId;
     }
 

@@ -16,56 +16,56 @@ import java.util.stream.Collectors;
 @Data
 @Service
 public class ItemMapper {
-    public static Collection<ItemDto> toItemDtoCollection(Collection<Item> items) {
-        return items.stream()
-                .map(ItemMapper::toItemDto)
-                .collect(Collectors.toList());
-    }
-
-    public static CommentDtoOut toCommentDto(Comment comment) {
-        return new CommentDtoOut(
-                comment.getId(),
-                comment.getText(),
-                comment.getAuthor().getName(),
-                comment.getCreated()
-        );
-    }
-
-    public static ItemDto toItemDto(Item item) {
-        return new ItemDto(
-                item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable()
-        );
-    }
-
     public static Collection<CommentDtoOut> toCommentDtoOutCollection(Collection<Comment> comments) {
         return comments.stream()
                 .map(ItemMapper::toCommentDto)
                 .collect(Collectors.toList());
     }
 
+    public static CommentDtoOut toCommentDto(Comment comment) {
+        return CommentDtoOut.builder()
+                .id(comment.getId())
+                .text(comment.getText())
+                .authorName(comment.getAuthor().getName())
+                .created(comment.getCreated())
+                .build();
+    }
+
+    public static Collection<ItemDto> toItemDtoCollection(Collection<Item> items) {
+        return items.stream()
+                .map(ItemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
+
+    public static ItemDto toItemDto(Item item) {
+        return ItemDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .build();
+    }
+
     public static ItemByIdDto toItemByIdDto(Item item, BookingDto lastBookingId, BookingDto nextBookingId,
                                             Collection<CommentDtoOut> commentList) {
-        return new ItemByIdDto(
-                item.getId(),
-                item.getName(),
-                item.getDescription(),
-                item.getAvailable(),
-                lastBookingId,
-                nextBookingId,
-                commentList
-        );
+        return ItemByIdDto.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.getAvailable())
+                .lastBooking(lastBookingId)
+                .nextBooking(nextBookingId)
+                .comments(commentList)
+                .build();
     }
 
     public static Item toItem(Long itemId, User owner, ItemDto itemDto) {
-        return new Item(
-                itemId,
-                itemDto.getName(),
-                itemDto.getDescription(),
-                itemDto.getAvailable(),
-                owner
-        );
+        return Item.builder()
+                .id(itemId)
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .owner(owner)
+                .build();
     }
 }

@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @ToString
 @EqualsAndHashCode
+@Builder
 public class ItemDto {
     private Long id;
     @NotBlank(groups = {Create.class})

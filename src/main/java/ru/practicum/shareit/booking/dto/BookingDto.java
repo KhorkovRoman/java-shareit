@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Builder
 public class BookingDto {
     private Long id;
     @NotNull(groups = {Create.class})

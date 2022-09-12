@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-
+@Builder
 public class CommentDtoOut {
     private Long id;
     @NotBlank(groups = {Create.class})

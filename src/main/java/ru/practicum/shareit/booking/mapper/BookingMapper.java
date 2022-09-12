@@ -17,24 +17,24 @@ public class BookingMapper {
     }
 
     public static BookingDto toBookingDto(Booking booking) {
-        return new BookingDto(
-                booking.getId(),
-                booking.getStart(),
-                booking.getEnd(),
-                booking.getItem().getId(),
-                booking.getStatus(),
-                booking.getBooker().getId()
-        );
+        return BookingDto.builder()
+                .id(booking.getId())
+                .start(booking.getStart())
+                .end(booking.getEnd())
+                .itemId(booking.getItem().getId())
+                .status(booking.getStatus())
+                .bookerId(booking.getBooker().getId())
+                .build();
     }
 
     public static Booking toBooking(Long bookingId, User booker, Item item, BookingDtoIn bookingDtoIn) {
-        return new Booking(
-                bookingId,
-                bookingDtoIn.getStart(),
-                bookingDtoIn.getEnd(),
-                item,
-                booker,
-                bookingDtoIn.getStatus()
-        );
+        return Booking.builder()
+                .id(bookingId)
+                .start(bookingDtoIn.getStart())
+                .end(bookingDtoIn.getEnd())
+                .item(item)
+                .booker(booker)
+                .status(bookingDtoIn.getStatus())
+                .build();
     }
 }

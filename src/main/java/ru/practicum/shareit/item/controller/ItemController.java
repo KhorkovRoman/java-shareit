@@ -29,44 +29,44 @@ public class ItemController {
     }
 
     @PostMapping
-    ItemDto createItem(@RequestHeader(USER_ID_HEADER) Long userId,
+    public ItemDto createItem(@RequestHeader(USER_ID_HEADER) Long userId,
                        @Validated({Create.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.createItem(userId, itemDto));
     }
 
     @PostMapping("/{itemId}/comment")
-    CommentDtoOut createComment(@RequestHeader(USER_ID_HEADER) Long authorId,
+    public CommentDtoOut createComment(@RequestHeader(USER_ID_HEADER) Long authorId,
                                 @PathVariable Long itemId,
                                 @Validated({Update.class}) @RequestBody CommentDtoIn commentDtoIn) {
         return ItemMapper.toCommentDto(itemService.createComment(authorId, itemId, commentDtoIn));
     }
 
     @GetMapping("/{itemId}")
-    ItemByIdDto getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
+    public ItemByIdDto getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
                                 @PathVariable Long itemId) {
         return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping("/search")
-    Collection<ItemDto> searchItems(@RequestParam String text) {
+    public Collection<ItemDto> searchItems(@RequestParam String text) {
         log.info("Получен GET запрос к эндпоинту /search?text={}", text);
         return ItemMapper.toItemDtoCollection(itemService.searchItems(text));
     }
 
     @GetMapping
-    Collection<ItemByIdDto> getAllItems(@RequestHeader(USER_ID_HEADER) Long userId) {
+    public Collection<ItemByIdDto> getAllItems(@RequestHeader(USER_ID_HEADER) Long userId) {
         return itemService.getAllItemsByUser(userId);
     }
 
     @PatchMapping("/{itemId}")
-    ItemDto updateItem(@RequestHeader(USER_ID_HEADER) Long userId,
+    public ItemDto updateItem(@RequestHeader(USER_ID_HEADER) Long userId,
                        @PathVariable Long itemId,
                        @Validated({Update.class}) @RequestBody ItemDto itemDto) {
         return ItemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto));
     }
 
     @DeleteMapping("/{itemId}")
-    void deleteItem(@RequestHeader(USER_ID_HEADER) int userId,
+    public void deleteItem(@RequestHeader(USER_ID_HEADER) int userId,
                     @PathVariable Long itemId) {
         itemService.deleteItem(itemId);
     }

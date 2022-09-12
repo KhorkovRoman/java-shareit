@@ -57,14 +57,14 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "from Booking b " +
             "where (b.item.id =?1) and (?2 > b.start)" +
             "group by b.id " +
-            "order by b.id desc")
+            "order by b.id desc, 1")
     Booking findLastBookingsByItemId(Long itemId, LocalDateTime dateTimeNow);
 
     @Query("select b " +
             "from Booking b " +
             "where (b.item.id =?1) and (?2 < b.start)" +
             "group by b.id " +
-            "order by b.id asc")
+            "order by b.id asc, 1")
     Booking findNextBookingsByItemId(Long itemId, LocalDateTime dateTimeNow);
 
     @Query("select b " +

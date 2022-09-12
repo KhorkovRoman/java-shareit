@@ -15,6 +15,7 @@ import java.util.Collection;
 @Setter
 @ToString
 @EqualsAndHashCode
+@Builder
 public class ItemByIdDto {
     private Long id;
     @NotBlank(groups = {Create.class})

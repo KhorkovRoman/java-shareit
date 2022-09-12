@@ -11,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @ToString
+@Builder
 public class CommentDtoIn {
     private Long id;
     @NotBlank(groups = {Create.class})
