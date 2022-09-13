@@ -13,8 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
-@Builder
-public class BookingDto {
+public class BookingDtoOut {
     private Long id;
     @NotNull(groups = {Create.class})
     private LocalDateTime start;
@@ -23,10 +22,9 @@ public class BookingDto {
     @NotNull(groups = {Create.class})
     private Long itemId;
     private BookingStatus status;
-    private Long bookerId;
 
 
-    public BookingDto(Long id, LocalDateTime start, LocalDateTime end, Long itemId) {
+    public BookingDtoOut(Long id, LocalDateTime start, LocalDateTime end, Long itemId) {
         this.id = id;
         this.start = start;
         this.end = end;

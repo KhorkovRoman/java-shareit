@@ -1,12 +1,13 @@
 package ru.practicum.shareit.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@AllArgsConstructor
 public class ErrorResponse {
-    private String message;
+    private final String error;
+
+    public ErrorResponse(String error) {
+        this.error = error;
+    }
+
+    public String getError() {
+        return error;
+    }
 }

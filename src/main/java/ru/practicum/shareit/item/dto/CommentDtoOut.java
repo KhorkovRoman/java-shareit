@@ -5,6 +5,7 @@ import ru.practicum.shareit.common.Create;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -12,14 +13,13 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
 @Builder
-public class ItemDto {
+public class CommentDtoOut {
     private Long id;
     @NotBlank(groups = {Create.class})
-    private String name;
+    private String text;
     @NotBlank(groups = {Create.class})
-    private String description;
+    private String authorName;
     @NotNull(groups = {Create.class})
-    private Boolean available;
+    private LocalDateTime created;
 }
