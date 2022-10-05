@@ -11,8 +11,6 @@ import ru.practicum.shareit.user.model.User;
 public class ValidationUser {
     public void validateUser(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("Электронная почта не может быть пустой и должна содежать символ @." +
-                    " Введено {}",user.getEmail());
             throw new ValidationException(HttpStatus.BAD_REQUEST,
                     "Электронная почта не может быть пустой и  должна содежать символ @.");
         }

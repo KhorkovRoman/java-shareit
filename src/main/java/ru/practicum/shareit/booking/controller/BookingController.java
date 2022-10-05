@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -12,7 +14,10 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.common.Create;
+import ru.practicum.shareit.exeption.ValidationException;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.Collection;
 
 @SuppressWarnings("checkstyle:Regexp")
@@ -52,17 +57,42 @@ public class BookingController {
 
     @GetMapping
     public Collection<Booking> getBookingsByUser(@RequestHeader(USER_ID_HEADER) Long userId,
-                                    @RequestParam(value = "state", defaultValue = "ALL") String stateText) {
+                                           @RequestParam(value = "state", defaultValue = "ALL") String stateText,
+                                           @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                           @Positive @RequestParam(name = "size", defaultValue = "20") Integer size) {
         State state = BookingStatus.findState(stateText);
-        log.info("Получен Get запрос к эндпоинту /bookings?state={state}");
-        return bookingService.getBookingsByUser(userId, state);
+        log.info("Получен Get запрос к эндпоинту /bookings?state={state}from={}size={}");
+        validateParam(from, size);
+        int page = from / size;
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        return bookingService.getBookingsByUser(userId, state, pageRequest);
     }
 
     @GetMapping("/owner")
     public Collection<Booking> getBookingsByOwner(@RequestHeader(USER_ID_HEADER) Long ownerId,
-                                          @RequestParam(value = "state", defaultValue = "ALL") String stateText) {
+                                          @RequestParam(value = "state", defaultValue = "ALL") String stateText,
+                                          @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                          @Positive @RequestParam(name = "size", defaultValue = "20") Integer size) {
         State state = BookingStatus.findState(stateText);
-        log.info("Получен Get запрос к эндпоинту /bookings/owner?state={state}");
-        return bookingService.getBookingsByOwner(ownerId, state);
+        log.info("Получен Get запрос к эндпоинту /bookings/owner?state={state}from={}size={}");
+        validateParam(from, size);
+        int page = from / size;
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        return bookingService.getBookingsByOwner(ownerId, state, pageRequest);
+    }
+
+    public void validateParam(Integer from, Integer size) {
+        if (from < 0) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Параметр from не может быть < 0.");
+        }
+        if (size < 0) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Параметр size не может быть < 0.");
+        }
+        if (from == 0 && size == 0) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Параметр from и size не могут одновременно быть = 0.");
+        }
     }
 }

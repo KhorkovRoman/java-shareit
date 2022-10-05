@@ -2,6 +2,8 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
@@ -11,12 +13,10 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exeption.ValidationException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -54,13 +54,15 @@ public class BookingService {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден предмет с id " + itemId));
+        if (!item.getAvailable()) {
+            throw new ValidationException(HttpStatus.BAD_REQUEST,
+                    "Предмет не доступен.");
+        }
         Long ownerId = item.getOwner().getId();
-        validateUser(booker, userId);
         if (Objects.equals(ownerId, userId)) {
             throw new ValidationException(HttpStatus.NOT_FOUND,
                     "Владелец предмета не может его бронировать.");
         }
-        validateItem(ItemMapper.toItemDto(item));
         bookingDtoIn.setStatus(BookingStatus.WAITING);
 
         Booking booking = BookingMapper.toBooking(generateBookingId(), booker, item, bookingDtoIn);
@@ -84,7 +86,8 @@ public class BookingService {
                         "Бронирование с id " + bookingId + " уже подтверждено.");
             }
             booking.setStatus(BookingStatus.APPROVED);
-        } else {
+        }
+        if (!approved) {
             if (booking.getStatus().equals(BookingStatus.REJECTED)) {
                 throw new ValidationException(HttpStatus.BAD_REQUEST,
                         "Бронирование с id " + bookingId + " уже отменено.");
@@ -104,65 +107,62 @@ public class BookingService {
         boolean ownerOrBooker = item.getOwner().getId().equals(userId) ||
                 booking.getBooker().getId().equals(userId);
         if (!ownerOrBooker) {
-            log.info("Пользователь с id " + userId + " не является хозяином или бронирующим вещи.");
             throw new ValidationException(HttpStatus.NOT_FOUND,
                     "Пользователь с id " + userId + " не является хозяином или бронирующим вещи.");
         }
         return booking;
     }
 
-    public Collection<Booking> getBookingsByUser(Long userId, State state) {
+    public Collection<Booking> getBookingsByUser(Long userId, State state, PageRequest pageRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь с id " + userId));
-        validateUser(user, userId);
         LocalDateTime dateTimeNow = LocalDateTime.now();
-        Collection<Booking> bookingCollection = null;
+        Page<Booking> bookingCollection = null;
 
         switch (state) {
-            case ALL: bookingCollection = bookingRepository.getAllBookingsByUser(userId);
+            case ALL: bookingCollection = bookingRepository.getAllBookingsByUser(userId, pageRequest);
                 break;
-            case CURRENT: bookingCollection = bookingRepository.getCurrentBookingsByUser(userId, dateTimeNow);
+            case CURRENT: bookingCollection = bookingRepository.getCurrentBookingsByUser(userId, dateTimeNow, pageRequest);
                 break;
-            case PAST: bookingCollection = bookingRepository.getPastBookingsByUser(userId, dateTimeNow);
+            case PAST: bookingCollection = bookingRepository.getPastBookingsByUser(userId, dateTimeNow, pageRequest);
                 break;
-            case FUTURE: bookingCollection = bookingRepository.getFutureBookingsByUser(userId, dateTimeNow);
+            case FUTURE: bookingCollection = bookingRepository.getFutureBookingsByUser(userId, dateTimeNow, pageRequest);
                 break;
             case WAITING:
-                bookingCollection = bookingRepository.getWaitingRejectedBookingsByBooker(userId, BookingStatus.WAITING);
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByBooker(userId, BookingStatus.WAITING, pageRequest);
                 break;
             case REJECTED:
-                bookingCollection = bookingRepository.getWaitingRejectedBookingsByBooker(userId, BookingStatus.REJECTED);
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByBooker(userId, BookingStatus.REJECTED, pageRequest);
                 break;
         }
-        return bookingCollection;
+        return bookingCollection.getContent();
     }
 
-    public Collection<Booking> getBookingsByOwner(Long ownerId, State state) {
+    public Collection<Booking> getBookingsByOwner(Long ownerId, State state, PageRequest pageRequest) {
         User user = userRepository.findById(ownerId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь с id " + ownerId));
-        validateUser(user, ownerId);
         LocalDateTime dateTimeNow = LocalDateTime.now();
-        Collection<Booking> bookingCollection = null;
+        Page<Booking> bookingCollection = null;
 
         switch (state) {
-            case ALL: bookingCollection = bookingRepository.getAllBookingsByUser(ownerId);
+            case ALL: bookingCollection = bookingRepository.getAllBookingsByOwner(ownerId, pageRequest);
                 break;
-            case CURRENT: bookingCollection = bookingRepository.getCurrentBookingsByUser(ownerId, dateTimeNow);
+            case CURRENT: bookingCollection = bookingRepository.getCurrentBookingsByOwner(ownerId, dateTimeNow, pageRequest);
                 break;
-            case PAST: bookingCollection = bookingRepository.getPastBookingsByUser(ownerId, dateTimeNow);
+            case PAST: bookingCollection = bookingRepository.getPastBookingsByOwner(ownerId, dateTimeNow, pageRequest);
                 break;
-            case FUTURE: bookingCollection = bookingRepository.getFutureBookingsByUser(ownerId, dateTimeNow);
+            case FUTURE: bookingCollection = bookingRepository.getFutureBookingsByOwner(ownerId, dateTimeNow, pageRequest);
                 break;
             case WAITING:
-                bookingCollection = bookingRepository.getWaitingRejectedBookingsByOwner(ownerId, BookingStatus.WAITING);
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByOwner(ownerId, BookingStatus.WAITING, pageRequest);
                 break;
             case REJECTED:
-                bookingCollection = bookingRepository.getWaitingRejectedBookingsByOwner(ownerId, BookingStatus.REJECTED);
+                bookingCollection = bookingRepository.getWaitingRejectedBookingsByOwner(ownerId, BookingStatus.REJECTED, pageRequest);
                 break;
         }
-        return bookingCollection;
+        return bookingCollection.getContent();
     }
 
     public void validateDate(BookingDtoIn bookingDtoIn) {
@@ -177,32 +177,6 @@ public class BookingService {
         if (LocalDateTime.now().compareTo(bookingDtoIn.getStart()) > 0) {
             throw new ValidationException(HttpStatus.BAD_REQUEST,
                     "Начало брони раньше текущего времени.");
-        }
-    }
-
-    public void validateItem(ItemDto itemDto) {
-        if (itemDto.getName() == null) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Не указано название.");
-        }
-        if (itemDto.getDescription() == null) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Не указано описание.");
-        }
-        if (!itemDto.getAvailable()) {
-            throw new ValidationException(HttpStatus.BAD_REQUEST,
-                    "Предмет не доступен.");
-        }
-    }
-
-    public void validateUser(User booker, Long userId) {
-        if (userId == null) {
-            throw new ValidationException(HttpStatus.NOT_FOUND,
-                    "Id пользователя не указан.");
-        }
-        if (booker == null) {
-            throw new ValidationException(HttpStatus.NOT_FOUND,
-                    "В базе нет пользователя c id " + userId);
         }
     }
 }
