@@ -29,24 +29,24 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 class UserServiceImplTest {
 
-    UserService userService;
+    private UserService userService;
 
     @MockBean
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @MockBean
-    ValidationUser validationUser;
+    private ValidationUser validationUser;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    User user1;
-    User user2;
-    UserDto userDto;
-    UserDto userDto2;
+    private User user1;
+    private User user2;
+    private UserDto userDto;
+    private UserDto userDto2;
 
     @BeforeEach
     void beforeEach() {
@@ -64,7 +64,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void createUser() {
+    void testCreateUser() {
         when(userService.createUser(userDto))
                 .thenReturn(user1);
 
@@ -73,7 +73,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void updateUser() {
+    void testUpdateUser() {
         when(userRepository.findById(user2.getId()))
                 .thenReturn(Optional.ofNullable(user2));
         userService.updateUser(user2.getId(), userDto2);
@@ -82,7 +82,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getUserById() {
+    void testGetUserById() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
 
@@ -93,7 +93,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void getAllUsers() throws Exception {
+    void testGetAllUsers() throws Exception {
         when(userRepository.findAll())
                 .thenReturn(List.of(user1));
 
@@ -104,7 +104,7 @@ class UserServiceImplTest {
     }
 
     @Test
-    void deleteUser() {
+    void testDeleteUser() {
         when(userRepository.findById(user2.getId()))
                 .thenReturn(Optional.ofNullable(user2));
         userService.deleteUser(2L);

@@ -30,42 +30,42 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class BookingMapperTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Autowired
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
 
-    BookingMapper bookingMapper;
+    private BookingMapper bookingMapper;
 
-    User user1;
-    User user2;
+    private User user1;
+    private User user2;
 
-    Item item1;
-    Item item2;
+    private Item item1;
+    private Item item2;
 
-    Collection<Item> itemCollection = new ArrayList<>();
+    private Collection<Item> itemCollection = new ArrayList<>();
 
-    ItemRequest itemRequest;
+    private ItemRequest itemRequest;
 
     //bookings by user2
-    Booking bookingByUser2;
-    LocalDateTime timeStartBooking2;
-    LocalDateTime timeEndBooking2;
+    private Booking bookingByUser2;
+    private LocalDateTime timeStartBooking2;
+    private LocalDateTime timeEndBooking2;
 
-    Booking bookingOwnerWaiting;
-    LocalDateTime timeStartBookingOwnerWaiting;
-    LocalDateTime timeEndBookingOwnerWaiting;
+    private Booking bookingOwnerWaiting;
+    private LocalDateTime timeStartBookingOwnerWaiting;
+    private LocalDateTime timeEndBookingOwnerWaiting;
 
-    Booking bookingOwnerRejected;
-    LocalDateTime timeStartBookingOwnerRej;
-    LocalDateTime timeEndBookingOwnerRej;
+    private Booking bookingOwnerRejected;
+    private LocalDateTime timeStartBookingOwnerRej;
+    private LocalDateTime timeEndBookingOwnerRej;
 
-    BookingDtoIn bookingDtoIn;
+    private BookingDtoIn bookingDtoIn;
 
-    Collection<Booking> bookingCollection = new ArrayList<>();
+    private Collection<Booking> bookingCollection = new ArrayList<>();
 
     @BeforeEach
     void beforeEach() {
@@ -121,7 +121,7 @@ class BookingMapperTest {
     }
 
     @Test
-    void toBookingDtoCollection() {
+    void testToBookingDtoCollection() {
         Collection<BookingDto> bookingDtoCollection = bookingMapper.toBookingDtoCollection(bookingCollection);
         assertNotNull(bookingDtoCollection);
         assertEquals(3, bookingDtoCollection.size());
@@ -129,14 +129,14 @@ class BookingMapperTest {
     }
 
     @Test
-    void toBookingDto() {
+    void testToBookingDto() {
         BookingDto bookingDto = bookingMapper.toBookingDto(bookingByUser2);
         assertNotNull(bookingDto);
         assertEquals(1, bookingDto.getId());
     }
 
     @Test
-    void toBooking() {
+    void testToBooking() {
         Booking booking = bookingMapper.toBooking(bookingDtoIn.getId(), user2, item1, bookingDtoIn);
         assertNotNull(booking);
         assertEquals(1, booking.getId());

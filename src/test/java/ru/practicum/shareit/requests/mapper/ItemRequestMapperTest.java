@@ -31,21 +31,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ItemRequestMapperTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
 
-    User user1;
-    User user2;
+    private User user1;
+    private User user2;
 
-    Item item1;
-    Item item2;
+    private Item item1;
+    private Item item2;
 
-    ItemRequest itemRequest1;
-    ItemRequest itemRequest2;
-    ItemRequestDtoIn itemRequestDtoIn;
+    private ItemRequest itemRequest1;
+    private ItemRequest itemRequest2;
+    private ItemRequestDtoIn itemRequestDtoIn;
 
     @BeforeEach
     void beforeEach() {
@@ -72,7 +72,7 @@ class ItemRequestMapperTest {
     }
 
     @Test
-    void toItemRequestByIdDto() {
+    void testToItemRequestByIdDto() {
         Collection<ItemDto> itemDtoCollection = new ArrayList<>();
         ItemDto item1Dto = ItemMapper.toItemDto(item1);
         itemDtoCollection.add(item1Dto);
@@ -82,14 +82,14 @@ class ItemRequestMapperTest {
     }
 
     @Test
-    void toItemRequestDto() {
+    void testToItemRequestDto() {
         ItemRequestDto itemRequestDto = ItemRequestMapper.toItemRequestDto(itemRequest1);
         assertNotNull(itemRequestDto);
         assertEquals(1, itemRequestDto.getId());
     }
 
     @Test
-    void toItemRequest() {
+    void testToItemRequest() {
         ItemRequest itemRequest = ItemRequestMapper.toItemRequest(
                 itemRequestDtoIn.getId(), user1, itemRequestDtoIn, LocalDateTime.now());
         assertNotNull(itemRequest);

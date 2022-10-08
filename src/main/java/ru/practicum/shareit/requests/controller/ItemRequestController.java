@@ -50,13 +50,17 @@ public class ItemRequestController {
     @GetMapping("/all")
     public Collection<ItemRequestByIdDto> getAllItemRequestsByPage(
             @RequestHeader(USER_ID_HEADER) Long userId,
-            @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-            @Positive @RequestParam(name = "size", defaultValue = "20") Integer size) {
+            @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+            @Positive @RequestParam(defaultValue = "20") Integer size) {
         log.info("Получен Get запрос к эндпоинту /requests/all?from={}size={}", from, size);
+        final PageRequest pageRequest = findPageRequest(from, size);
+        return itemRequestService.getAllItemRequestsByPage(userId, pageRequest);
+    }
+
+    public PageRequest findPageRequest(Integer from, Integer size) {
         validateParam(from, size);
         int page = from / size;
-        final PageRequest pageRequest = PageRequest.of(page, size);
-        return itemRequestService.getAllItemRequestsByPage(userId, pageRequest);
+        return PageRequest.of(page, size);
     }
 
     public void validateParam(Integer from, Integer size) {

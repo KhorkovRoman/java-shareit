@@ -45,46 +45,46 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 class ItemRequestServiceTest {
 
-    ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
     @MockBean
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @MockBean
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @MockBean
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @MockBean
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
     @MockBean
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @MockBean
-    ValidationUser validationUser;
+    private ValidationUser validationUser;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    User user1;
-    User user2;
-    UserDto userDto;
-    UserDto userDto2;
+    private User user1;
+    private User user2;
+    private UserDto userDto;
+    private UserDto userDto2;
 
-    Item item1;
-    ItemDto itemDto;
-    ItemByIdDto itemByIdDto;
+    private Item item1;
+    private ItemDto itemDto;
+    private ItemByIdDto itemByIdDto;
 
-    int from = 0;
-    int size = 20;
-    PageRequest pageRequest;
+    private int from = 0;
+    private int size = 20;
+    private PageRequest pageRequest;
 
-    ItemRequest itemRequest;
-    ItemRequestDtoIn itemRequestDtoIn;
-    ItemRequestByIdDto itemRequestByIdDto;
+    private ItemRequest itemRequest;
+    private ItemRequestDtoIn itemRequestDtoIn;
+    private ItemRequestByIdDto itemRequestByIdDto;
 
     @BeforeEach
     void beforeEach() {
@@ -120,7 +120,7 @@ class ItemRequestServiceTest {
     }
 
     @Test
-    void createItemRequest() {
+    void testCreateItemRequest() {
         when(userRepository.findById(user2.getId()))
                 .thenReturn(Optional.ofNullable(user2));
         when(itemRequestRepository.findById(itemRequest.getId()))
@@ -133,7 +133,7 @@ class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestById() {
+    void testGetItemRequestById() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.getAllItemsByRequest(itemRequest.getId()))
@@ -148,7 +148,7 @@ class ItemRequestServiceTest {
     }
 
     @Test
-    void getAllItemRequestsByRequester() {
+    void testGetAllItemRequestsByRequester() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))
@@ -165,7 +165,7 @@ class ItemRequestServiceTest {
     }
 
     @Test
-    void getAllItemRequestsByPage() {
+    void testGetAllItemRequestsByPage() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))

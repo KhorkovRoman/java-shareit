@@ -28,49 +28,49 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class BookingRepositoryTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
     @Autowired
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
 
-    final PageRequest pageRequest = PageRequest.of(0, 20);
+    private final PageRequest pageRequest = PageRequest.of(0, 20);
 
-    User user1;
-    User user2;
+    private User user1;
+    private User user2;
 
-    Item item1;
-    Item item2;
+    private Item item1;
+    private Item item2;
 
-    ItemRequest itemRequest;
+    private ItemRequest itemRequest;
 
     //bookings by user1
-    Booking bookingByUser1;
-    LocalDateTime timeStartBooking1;
-    LocalDateTime timeEndBooking1;
+    private Booking bookingByUser1;
+    private LocalDateTime timeStartBooking1;
+    private LocalDateTime timeEndBooking1;
 
-    Booking bookingBookerWaitingByUser1;
-    LocalDateTime timeStartBookingBookerWaiting;
-    LocalDateTime timeEndBookingBookerWaiting;
+    private Booking bookingBookerWaitingByUser1;
+    private LocalDateTime timeStartBookingBookerWaiting;
+    private LocalDateTime timeEndBookingBookerWaiting;
 
-    Booking bookingBookerRejectedByUser1;
-    LocalDateTime timeStartBookingBookerRej;
-    LocalDateTime timeEndBookingBookerRej;
+    private Booking bookingBookerRejectedByUser1;
+    private LocalDateTime timeStartBookingBookerRej;
+    private LocalDateTime timeEndBookingBookerRej;
 
     //bookings by user2
-    Booking bookingByUser2;
-    LocalDateTime timeStartBooking2;
-    LocalDateTime timeEndBooking2;
+    private Booking bookingByUser2;
+    private LocalDateTime timeStartBooking2;
+    private LocalDateTime timeEndBooking2;
 
-    Booking bookingOwnerWaiting;
-    LocalDateTime timeStartBookingOwnerWaiting;
-    LocalDateTime timeEndBookingOwnerWaiting;
+    private Booking bookingOwnerWaiting;
+    private LocalDateTime timeStartBookingOwnerWaiting;
+    private LocalDateTime timeEndBookingOwnerWaiting;
 
-    Booking bookingOwnerRejected;
-    LocalDateTime timeStartBookingOwnerRej;
-    LocalDateTime timeEndBookingOwnerRej;
+    private Booking bookingOwnerRejected;
+    private LocalDateTime timeStartBookingOwnerRej;
+    private LocalDateTime timeEndBookingOwnerRej;
 
     @BeforeEach
     void beforeEach() {
@@ -129,118 +129,100 @@ class BookingRepositoryTest {
         bookingRepository.deleteAll();
     }
 
-    @Test
-    void getAllBookingsByUser() {
-        Page<Booking> allBookingsByUser = bookingRepository.getAllBookingsByUser(user1.getId(), pageRequest);
-        assertNotNull(allBookingsByUser);
-        assertEquals(3, allBookingsByUser.getTotalElements());
-        assertEquals(timeStartBookingBookerRej, allBookingsByUser.stream().findFirst().get().getStart());
+    void assertCommonTest(Page<Booking> bookings, LocalDateTime timeStartBooking, int count) {
+        assertNotNull(bookings);
+        assertEquals(count, bookings.getTotalElements());
+        assertEquals(timeStartBooking, bookings.stream().findFirst().get().getStart());
     }
 
     @Test
-    void getCurrentBookingsByUser() {
+    void testGetAllBookingsByUser() {
+        Page<Booking> allBookingsByUser = bookingRepository.getAllBookingsByUser(user1.getId(), pageRequest);
+        assertCommonTest(allBookingsByUser, timeStartBookingBookerRej, 3);
+    }
+
+    @Test
+    void testGetCurrentBookingsByUser() {
         LocalDateTime currentTime = LocalDateTime.of(2023, 9, 10, 13, 0);
         Page<Booking> currentBookingsByUser = bookingRepository.getCurrentBookingsByUser(user1.getId(), currentTime,
-                                                                                     pageRequest);
-        assertNotNull(currentBookingsByUser);
-        assertEquals(1, currentBookingsByUser.getTotalElements());
-        assertEquals(timeStartBooking1, currentBookingsByUser.stream().findFirst().get().getStart());
+                                             pageRequest);
+        assertCommonTest(currentBookingsByUser, timeStartBooking1, 1);
     }
 
     @Test
-    void getPastBookingsByUser() {
+    void testGetPastBookingsByUser() {
         LocalDateTime currentTime = LocalDateTime.of(2023, 12, 20, 13, 0);
         Page<Booking> pastBookingsByUser = bookingRepository.getPastBookingsByUser(user1.getId(), currentTime,
                 pageRequest);
-        assertNotNull(pastBookingsByUser);
-        assertEquals(3, pastBookingsByUser.getTotalElements());
-        assertEquals(timeStartBookingBookerRej, pastBookingsByUser.stream().findFirst().get().getStart());
+        assertCommonTest(pastBookingsByUser, timeStartBookingBookerRej, 3);
     }
 
     @Test
-    void getFutureBookingsByUser() {
+    void testGetFutureBookingsByUser() {
         LocalDateTime currentTime = LocalDateTime.of(2023, 7, 20, 13, 0);
         Page<Booking> futureBookingsByUser = bookingRepository.getFutureBookingsByUser(user1.getId(), currentTime,
                 pageRequest);
-        assertNotNull(futureBookingsByUser);
-        assertEquals(3, futureBookingsByUser.getTotalElements());
-        assertEquals(timeStartBookingBookerRej, futureBookingsByUser.stream().findFirst().get().getStart());
+        assertCommonTest(futureBookingsByUser, timeStartBookingBookerRej, 3);
     }
 
     @Test
-    void getAllBookingsByOwner() {
+    void testGetAllBookingsByOwner() {
         Page<Booking> allBookingsByOwner = bookingRepository.getAllBookingsByOwner(user1.getId(), pageRequest);
-        assertNotNull(allBookingsByOwner);
-        assertEquals(3, allBookingsByOwner.getTotalElements());
-        assertEquals(timeStartBookingOwnerRej, allBookingsByOwner.stream().findFirst().get().getStart());
+        assertCommonTest(allBookingsByOwner, timeStartBookingOwnerRej, 3);
     }
 
     @Test
-    void getCurrentBookingsByOwner() {
+    void testGetCurrentBookingsByOwner() {
         LocalDateTime currentTime = LocalDateTime.of(2023, 10, 10, 13, 0);
         Page<Booking> currentBookingsByOwner = bookingRepository.getCurrentBookingsByOwner(user1.getId(), currentTime,
                 pageRequest);
-        assertNotNull(currentBookingsByOwner);
-        assertEquals(1, currentBookingsByOwner.getTotalElements());
-        assertEquals(timeStartBooking2, currentBookingsByOwner.stream().findFirst().get().getStart());
+        assertCommonTest(currentBookingsByOwner, timeStartBooking2, 1);
     }
 
     @Test
-    void getPastBookingsByOwner() {
+    void testGetPastBookingsByOwner() {
         LocalDateTime currentTime = LocalDateTime.of(2023, 11, 23, 13, 0);
         Page<Booking> pastBookingsByOwner = bookingRepository.getPastBookingsByOwner(user1.getId(), currentTime,
                 pageRequest);
-        assertNotNull(pastBookingsByOwner);
-        assertEquals(3, pastBookingsByOwner.getTotalElements());
-        assertEquals(timeStartBookingOwnerRej, pastBookingsByOwner.stream().findFirst().get().getStart());
+        assertCommonTest(pastBookingsByOwner, timeStartBookingOwnerRej, 3);
     }
 
     @Test
-    void getFutureBookingsByOwner() {
+    void testGetFutureBookingsByOwner() {
         LocalDateTime currentTime = LocalDateTime.of(2023, 8, 22, 12, 0);
         Page<Booking> futureBookingsByOwner = bookingRepository.getFutureBookingsByOwner(user1.getId(), currentTime,
                 pageRequest);
-        assertNotNull(futureBookingsByOwner);
-        assertEquals(3, futureBookingsByOwner.getTotalElements());
-        assertEquals(timeStartBookingOwnerRej, futureBookingsByOwner.stream().findFirst().get().getStart());
+        assertCommonTest(futureBookingsByOwner, timeStartBookingOwnerRej, 3);
     }
 
     @Test
-    void getWaitingRejectedBookingsByBooker() {
+    void testGetWaitingRejectedBookingsByBooker() {
         BookingStatus bookingStatusWaiting = BookingStatus.WAITING;
         Page<Booking> waitingBookingsByBooker =
                 bookingRepository.getWaitingRejectedBookingsByBooker(user1.getId(), bookingStatusWaiting, pageRequest);
-        assertNotNull(waitingBookingsByBooker);
-        assertEquals(1, waitingBookingsByBooker.getTotalElements());
-        assertEquals(timeStartBookingBookerWaiting, waitingBookingsByBooker.stream().findFirst().get().getStart());
+        assertCommonTest(waitingBookingsByBooker, timeStartBookingBookerWaiting, 1);
 
         BookingStatus bookingStatusRejected = BookingStatus.REJECTED;
         Page<Booking> rejectedBookingsByBooker =
                 bookingRepository.getWaitingRejectedBookingsByBooker(user1.getId(), bookingStatusRejected, pageRequest);
-        assertNotNull(rejectedBookingsByBooker);
-        assertEquals(1, rejectedBookingsByBooker.getTotalElements());
-        assertEquals(timeStartBookingBookerRej, rejectedBookingsByBooker.stream().findFirst().get().getStart());
+        assertCommonTest(rejectedBookingsByBooker, timeStartBookingBookerRej, 1);
     }
 
     @Test
-    void getWaitingRejectedBookingsByOwner() {
+    void testGetWaitingRejectedBookingsByOwner() {
         BookingStatus bookingStatusWaiting = BookingStatus.WAITING;
         Page<Booking> waitingBookingsByOwner =
                 bookingRepository.getWaitingRejectedBookingsByOwner(user1.getId(), bookingStatusWaiting, pageRequest);
-        assertNotNull(waitingBookingsByOwner);
-        assertEquals(1, waitingBookingsByOwner.getTotalElements());
-        assertEquals(timeStartBookingOwnerWaiting, waitingBookingsByOwner.stream().findFirst().get().getStart());
+        assertCommonTest(waitingBookingsByOwner, timeStartBookingOwnerWaiting, 1);
 
         BookingStatus bookingStatusRejected = BookingStatus.REJECTED;
         Page<Booking> rejectedBookingsByOwner =
                 bookingRepository.getWaitingRejectedBookingsByOwner(user1.getId(), bookingStatusRejected, pageRequest);
-        assertNotNull(rejectedBookingsByOwner);
-        assertEquals(1, rejectedBookingsByOwner.getTotalElements());
-        assertEquals(timeStartBookingOwnerRej, rejectedBookingsByOwner.stream().findFirst().get().getStart());
+        assertCommonTest(rejectedBookingsByOwner, timeStartBookingOwnerRej, 1);
     }
 
     @Test
-    void findLastBookingsByItemId() {
+    void testFindLastBookingsByItemId() {
         PageRequest pageRequestForLastBooking =
                 PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
         LocalDateTime currentTime = LocalDateTime.of(2023, 9, 20, 13, 0);
@@ -252,7 +234,7 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void findNextBookingsByItemId() {
+    void testFindNextBookingsByItemId() {
         PageRequest pageRequestForNextBooking =
                 PageRequest.of(0, 1, Sort.by(Sort.Direction.ASC, "start"));
         LocalDateTime currentTime = LocalDateTime.of(2023, 9, 10, 13, 0);
@@ -264,7 +246,7 @@ class BookingRepositoryTest {
     }
 
     @Test
-    void findBookerByItemId() {
+    void testFindBookerByItemId() {
         LocalDateTime currentTime = LocalDateTime.of(2023, 9, 11, 13, 0);
         Booking booking = bookingRepository.findBookerByItemId(item2.getId(), user1.getId(), currentTime);
         assertNotNull(booking);

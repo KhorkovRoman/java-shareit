@@ -25,19 +25,19 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ItemRequestRepositoryTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
 
-    User user1;
-    User user2;
+    private User user1;
+    private User user2;
 
-    Item item1;
-    Item item2;
+    private Item item1;
+    private Item item2;
 
-    ItemRequest itemRequest;
+    private ItemRequest itemRequest;
 
     @BeforeEach
     void beforeEach() {
@@ -60,7 +60,7 @@ class ItemRequestRepositoryTest {
     }
 
     @Test
-    void getAllItemRequestsByUser() {
+    void testGetAllItemRequestsByUser() {
         Collection<ItemRequest> allItemRequestsByUser =
                 itemRequestRepository.getAllItemRequestsByRequester(user1.getId());
         assertNotNull(allItemRequestsByUser);
@@ -69,7 +69,7 @@ class ItemRequestRepositoryTest {
     }
 
     @Test
-    void findAllItemRequests() {
+    void testFindAllItemRequests() {
         final PageRequest pageRequest = PageRequest.of(0, 20);
         Page<ItemRequest> allItemRequests = itemRequestRepository.findAllItemRequests(user2.getId(), pageRequest);
         assertNotNull(allItemRequests);

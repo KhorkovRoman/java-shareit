@@ -47,50 +47,50 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 class ItemServiceTest {
 
-    ItemService itemService;
+    private ItemService itemService;
 
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
     @MockBean
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @MockBean
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @MockBean
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @MockBean
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
     @MockBean
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @MockBean
-    ValidationUser validationUser;
+    private ValidationUser validationUser;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    User user1;
-    User user2;
-    UserDto userDto;
-    UserDto userDto2;
+    private User user1;
+    private User user2;
+    private UserDto userDto;
+    private UserDto userDto2;
 
-    Item item1;
-    ItemDto itemDto;
-    ItemByIdDto itemByIdDto;
+    private Item item1;
+    private ItemDto itemDto;
+    private ItemByIdDto itemByIdDto;
 
-    int from = 0;
-    int size = 20;
-    PageRequest pageRequest;
+    private int from = 0;
+    private int size = 20;
+    private PageRequest pageRequest;
 
-    Booking bookingLast;
-    Booking bookingNext;
-    BookingDtoIn bookingDtoInLast;
-    BookingDtoIn bookingDtoInNext;
+    private Booking bookingLast;
+    private Booking bookingNext;
+    private BookingDtoIn bookingDtoInLast;
+    private BookingDtoIn bookingDtoInNext;
 
-    Comment comment1;
-    CommentDtoIn commentDtoIn;
+    private Comment comment1;
+    private CommentDtoIn commentDtoIn;
 
     @BeforeEach
     void beforeEach() {
@@ -147,7 +147,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void createComment() {
+    void testCreateComment() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(userRepository.findById(user2.getId()))
@@ -175,7 +175,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void createItem() {
+    void testCreateItem() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))
@@ -190,7 +190,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void updateItem() {
+    void testUpdateItem() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))
@@ -202,7 +202,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void searchItems() {
+    void testSearchItems() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))
@@ -223,7 +223,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void getItemById() {
+    void testGetItemById() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))
@@ -240,7 +240,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void getAllItemsByUser() {
+    void testGetAllItemsByUser() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))
@@ -259,7 +259,7 @@ class ItemServiceTest {
     }
 
     @Test
-    void deleteItem() {
+    void testDeleteItem() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemService.createItem(user1.getId(), itemDto))

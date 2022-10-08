@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.practicum.shareit.booking.dto.BookingDtoIn;
 import ru.practicum.shareit.booking.dto.State;
 import ru.practicum.shareit.booking.model.Booking;
@@ -45,34 +47,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class BookingControllerTest {
 
-    BookingController bookingController;
+    private BookingController bookingController;
 
     @MockBean
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    ItemDto itemDto;
-    ItemByIdDto itemByIdDto;
-    Collection<CommentDtoOut> comments = new ArrayList<>();
+    private ItemDto itemDto;
+    private ItemByIdDto itemByIdDto;
+    private Collection<CommentDtoOut> comments = new ArrayList<>();
 
-    User user;
-    User user2;
-    Item item1;
-    Comment comment1;
-    int from = 0;
-    int size = 20;
-    PageRequest pageRequest;
+    private User user;
+    private User user2;
+    private Item item1;
+    private Comment comment1;
+    private int from = 0;
+    private int size = 20;
+    private PageRequest pageRequest;
 
-    Booking bookingByUser1;
-    LocalDateTime timeStartBooking1;
-    LocalDateTime timeEndBooking1;
+    private Booking bookingByUser1;
+    private LocalDateTime timeStartBooking1;
+    private LocalDateTime timeEndBooking1;
 
-    BookingDtoIn bookingDtoIn;
+    private BookingDtoIn bookingDtoIn;
 
     @BeforeEach
     void beforeEach() {
@@ -98,7 +100,7 @@ class BookingControllerTest {
     }
 
     @Test
-    public void createBookingTest() throws Exception {
+    public void testCreateBooking() throws Exception {
         when(bookingService.createBooking(any(), any(BookingDtoIn.class)))
                 .thenReturn(Booking.builder()
                         .id(1L)
@@ -109,12 +111,7 @@ class BookingControllerTest {
                         .status(BookingStatus.APPROVED)
                         .build());
 
-        mockMvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDtoIn))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", user2.getId()))
+        mockMvc.perform(mockAction(post("/bookings"), user2.getId(), bookingDtoIn))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDtoIn.getId()), Long.class));
 
@@ -123,7 +120,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void approveBooking() throws Exception {
+    void testApproveBooking() throws Exception {
         when(bookingService.approveBooking(anyLong(), anyLong(), anyBoolean()))
                 .thenReturn(Booking.builder()
                         .id(1L)
@@ -134,12 +131,7 @@ class BookingControllerTest {
                         .status(BookingStatus.APPROVED)
                         .build());
 
-        mockMvc.perform(patch("/bookings/1?approved=true")
-                        .content(mapper.writeValueAsString(bookingDtoIn))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", user.getId()))
+        mockMvc.perform(mockAction(patch("/bookings/1?approved=true"), user.getId(), bookingDtoIn))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(bookingDtoIn.getId()), Long.class));
 
@@ -148,7 +140,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void getBookingById() throws Exception {
+    void testGetBookingById() throws Exception {
         when(bookingService.getBookingById(anyLong(), anyLong()))
                 .thenReturn(Booking.builder()
                         .id(1L)
@@ -173,16 +165,11 @@ class BookingControllerTest {
     }
 
     @Test
-    void getBookingsByUser() throws Exception {
+    void testGetBookingsByUser() throws Exception {
         when(bookingService.getBookingsByUser(anyLong(), any(State.class), any(PageRequest.class)))
                 .thenReturn(List.of(bookingByUser1));
 
-        mockMvc.perform(get("/bookings/?state=ALL")
-                        .content(mapper.writeValueAsString(bookingDtoIn))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", user2.getId()))
+        mockMvc.perform(mockAction(get("/bookings/?state=ALL"), user2.getId(), bookingDtoIn))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(bookingByUser1.getId()), Long.class));
@@ -198,16 +185,11 @@ class BookingControllerTest {
     }
 
     @Test
-    void getBookingsByOwner() throws Exception {
+    void testGetBookingsByOwner() throws Exception {
         when(bookingService.getBookingsByOwner(anyLong(), any(State.class), any(PageRequest.class)))
                 .thenReturn(List.of(bookingByUser1));
 
-        mockMvc.perform(get("/bookings/owner?state=ALL")
-                        .content(mapper.writeValueAsString(bookingDtoIn))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", user.getId()))
+        mockMvc.perform(mockAction(get("/bookings/owner?state=ALL"),user.getId(), bookingDtoIn))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(bookingByUser1.getId()), Long.class));
@@ -215,4 +197,17 @@ class BookingControllerTest {
         Mockito.verify(bookingService, times(1))
                 .getBookingsByOwner(anyLong(), any(State.class), any(PageRequest.class));
     }
+
+    public MockHttpServletRequestBuilder mockAction(MockHttpServletRequestBuilder mockMvc,
+                                                    Long userId,
+                                                    BookingDtoIn bookingDtoIn)
+            throws JsonProcessingException {
+        return mockMvc
+                .content(mapper.writeValueAsString(bookingDtoIn))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Sharer-User-Id", userId);
+    }
+
 }

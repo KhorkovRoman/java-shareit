@@ -39,10 +39,6 @@ public class ItemRequestService {
 
     private Long itemRequestId = 0L;
 
-    public Long generateItemRequestId() {
-        return ++itemRequestId;
-    }
-
     @SuppressWarnings("checkstyle:Regexp")
     public ItemRequest createItemRequest(Long userId, ItemRequestDtoIn itemRequestDtoIn) {
         User user = getUser(userId);
@@ -62,7 +58,8 @@ public class ItemRequestService {
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден запрос c id " + requestId));
 
-        Collection<ItemDto> itemDtoList = ItemMapper.toItemDtoCollection(itemRepository.getAllItemsByRequest(requestId));
+        Collection<ItemDto> itemDtoList =
+                ItemMapper.toItemDtoCollection(itemRepository.getAllItemsByRequest(requestId));
 
         return ItemRequestMapper.toItemRequestByIdDto(itemRequest, itemDtoList);
     }
@@ -106,5 +103,9 @@ public class ItemRequestService {
             throw new ValidationException(HttpStatus.NOT_FOUND,
                     "В базе нет пользователя c id " + userId);
         }
+    }
+
+    private Long generateItemRequestId() {
+        return ++itemRequestId;
     }
 }

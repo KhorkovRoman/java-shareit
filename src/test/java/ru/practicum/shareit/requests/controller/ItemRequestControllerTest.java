@@ -45,30 +45,30 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ItemRequestControllerTest {
 
     @MockBean
-    ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    ItemRequest itemRequest;
-    ItemRequestDtoIn itemRequestDtoIn;
-    ItemRequestByIdDto itemRequestByIdDto;
+    private ItemRequest itemRequest;
+    private ItemRequestDtoIn itemRequestDtoIn;
+    private ItemRequestByIdDto itemRequestByIdDto;
 
-    ItemDto itemDto;
-    ItemByIdDto itemByIdDto;
-    Collection<CommentDtoOut> comments = new ArrayList<>();
+    private ItemDto itemDto;
+    private ItemByIdDto itemByIdDto;
+    private Collection<CommentDtoOut> comments = new ArrayList<>();
 
-    User user;
-    User user2;
-    Item item1;
-    Comment comment1;
+    private User user;
+    private User user2;
+    private Item item1;
+    private Comment comment1;
 
-    int from = 0;
-    int size = 20;
-    PageRequest pageRequest;
+    private int from = 0;
+    private int size = 20;
+    private PageRequest pageRequest;
 
     @BeforeEach
     void beforeEach() {
@@ -90,7 +90,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void createItemRequest() throws Exception {
+    void testCreateItemRequest() throws Exception {
         when(itemRequestService.createItemRequest(any(), any(ItemRequestDtoIn.class)))
                 .thenReturn(ItemRequest.builder()
                         .id(1L)
@@ -114,7 +114,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getItemRequestById() throws Exception {
+    void testGetItemRequestById() throws Exception {
         when(itemRequestService.getItemRequestById(anyLong(), anyLong()))
                 .thenReturn(ItemRequestByIdDto.builder()
                         .id(1L)
@@ -138,7 +138,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getAllItemRequestsByUser() throws Exception {
+    void testGetAllItemRequestsByUser() throws Exception {
         when(itemRequestService.getAllItemRequestsByRequester(anyLong()))
                 .thenReturn(List.of(itemRequestByIdDto));
 
@@ -158,7 +158,7 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getAllItemRequestsByPage() throws Exception {
+    void testGetAllItemRequestsByPage() throws Exception {
         when(itemRequestService.getAllItemRequestsByPage(user.getId(), pageRequest))
                 .thenReturn(Collections.singletonList(itemRequestByIdDto));
 

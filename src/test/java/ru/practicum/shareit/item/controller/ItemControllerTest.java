@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import ru.practicum.shareit.item.dto.CommentDtoIn;
 import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemByIdDto;
@@ -41,25 +43,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class ItemControllerTest {
 
     @MockBean
-    ItemService itemService;
+    private ItemService itemService;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    ItemDto itemDto;
-    ItemByIdDto itemByIdDto;
-    Collection<CommentDtoOut> comments = new ArrayList<>();
+    private ItemDto itemDto;
+    private ItemByIdDto itemByIdDto;
+    private Collection<CommentDtoOut> comments = new ArrayList<>();
 
-    User user;
-    User user2;
-    Item item1;
-    Comment comment1;
-    int from = 0;
-    int size = 20;
-    PageRequest pageRequest;
+    private User user;
+    private User user2;
+    private Item item1;
+    private Comment comment1;
+    private int from = 0;
+    private int size = 20;
+    private PageRequest pageRequest;
 
     @BeforeEach
     void beforeEach() {
@@ -76,7 +78,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void createItem() throws Exception {
+    void testCreateItem() throws Exception {
         when(itemService.createItem(any(), any(ItemDto.class)))
                 .thenReturn(Item.builder().id(1L).name("item").description("description").build());
 
@@ -96,7 +98,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void createComment() throws Exception {
+    void testCreateComment() throws Exception {
         when(itemService.createComment(any(), any(), any(CommentDtoIn.class)))
                 .thenReturn(Comment.builder()
                         .id(1L)
@@ -122,7 +124,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void getItemById() throws Exception {
+    void testGetItemById() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
                 .thenReturn(ItemByIdDto.builder()
                         .id(1L)
@@ -146,16 +148,11 @@ class ItemControllerTest {
     }
 
     @Test
-    void searchItems() throws Exception {
+    void testSearchItems() throws Exception {
         when(itemService.searchItems("item 1", pageRequest))
                 .thenReturn(List.of(item1));
 
-        mockMvc.perform(get("/items/search?text=item 1")
-                        .content(mapper.writeValueAsString(item1))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", user.getId()))
+        mockMvc.perform(mockAction(get("/items/search?text=item 1"), user.getId(), item1))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is(item1.getId()), Long.class))
@@ -167,7 +164,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void getAllItems() throws Exception {
+    void testGetAllItems() throws Exception {
         when(itemService.getAllItemsByUser(user.getId(), pageRequest))
                 .thenReturn(Collections.singletonList(itemByIdDto));
 
@@ -188,7 +185,7 @@ class ItemControllerTest {
     }
 
     @Test
-    void updateItem() throws Exception {
+    void testUpdateItem() throws Exception {
         when(itemService.updateItem(anyLong(), anyLong(), any(ItemDto.class)))
                 .thenReturn(Item.builder().id(1L).name("item").description("description").build());
 
@@ -208,17 +205,22 @@ class ItemControllerTest {
     }
 
     @Test
-    void deleteItem() throws Exception {
-        mockMvc.perform(delete("/items/1")
-                        .content(mapper.writeValueAsString(item1))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", user.getId()))
+    void testDeleteItem() throws Exception {
+        mockMvc.perform(mockAction(delete("/items/1"), user.getId(), item1))
                 .andExpect(status().isOk());
 
         Mockito.verify(itemService, times(1))
                 .deleteItem(anyLong());
+    }
+
+    public MockHttpServletRequestBuilder mockAction(MockHttpServletRequestBuilder mockMvc, Long userId, Item item)
+            throws JsonProcessingException {
+        return mockMvc
+                .content(mapper.writeValueAsString(item))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("X-Sharer-User-Id", userId);
     }
 }
 

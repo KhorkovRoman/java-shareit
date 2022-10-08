@@ -35,43 +35,43 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ItemMapperTest {
 
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @Autowired
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Autowired
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
     @Autowired
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
-    User user1;
-    User user2;
+    private User user1;
+    private User user2;
 
-    Item item1;
-    Item item2;
+    private Item item1;
+    private Item item2;
 
-    Collection<Item> itemCollection = new ArrayList<>();
+    private Collection<Item> itemCollection = new ArrayList<>();
 
-    Comment comment1;
-    Comment comment2;
+    private Comment comment1;
+    private Comment comment2;
 
-    Collection<Comment> commentList = new ArrayList<>();
+    private Collection<Comment> commentList = new ArrayList<>();
 
-    ItemRequest itemRequest;
+    private ItemRequest itemRequest;
 
     //bookings by user2
-    Booking bookingByUser2;
-    LocalDateTime timeStartBooking2;
-    LocalDateTime timeEndBooking2;
+    private Booking bookingByUser2;
+    private LocalDateTime timeStartBooking2;
+    private LocalDateTime timeEndBooking2;
 
-    Booking bookingOwnerWaiting;
-    LocalDateTime timeStartBookingOwnerWaiting;
-    LocalDateTime timeEndBookingOwnerWaiting;
+    private Booking bookingOwnerWaiting;
+    private LocalDateTime timeStartBookingOwnerWaiting;
+    private LocalDateTime timeEndBookingOwnerWaiting;
 
-    Booking bookingOwnerRejected;
-    LocalDateTime timeStartBookingOwnerRej;
-    LocalDateTime timeEndBookingOwnerRej;
+    private Booking bookingOwnerRejected;
+    private LocalDateTime timeStartBookingOwnerRej;
+    private LocalDateTime timeEndBookingOwnerRej;
 
     @BeforeEach
     void beforeEach() {
@@ -127,7 +127,7 @@ class ItemMapperTest {
     }
 
     @Test
-    void toCommentDtoCollection() {
+    void testToCommentDtoCollection() {
         Collection<CommentDtoOut> commentDtoOutCollection = ItemMapper.toCommentDtoCollection(commentList);
         assertNotNull(commentDtoOutCollection);
         assertEquals(2, commentDtoOutCollection.size());
@@ -135,14 +135,14 @@ class ItemMapperTest {
     }
 
     @Test
-    void toCommentDto() {
+    void testToCommentDto() {
         CommentDtoOut commentDtoOut = ItemMapper.toCommentDto(comment1);
         assertNotNull(commentDtoOut);
         assertEquals(1, commentDtoOut.getId());
     }
 
     @Test
-    void toItemDtoCollection() {
+    void testToItemDtoCollection() {
         Collection<ItemDto> itemDtoCollection = ItemMapper.toItemDtoCollection(itemCollection);
         assertNotNull(itemDtoCollection);
         assertEquals(2, itemDtoCollection.size());
@@ -150,14 +150,14 @@ class ItemMapperTest {
     }
 
     @Test
-    void toItemDto() {
+    void testToItemDto() {
         ItemDto itemDto = ItemMapper.toItemDto(item1);
         assertNotNull(itemDto);
         assertEquals(1, itemDto.getId());
     }
 
     @Test
-    void toItemByIdDto() {
+    void testToItemByIdDto() {
         Collection<CommentDtoOut> commentDtoOutCollection = ItemMapper.toCommentDtoCollection(commentList);
         BookingDto bookingDtoByUser2 = BookingMapper.toBookingDto(bookingByUser2);
         BookingDto bookingDtoOwnerWaiting2 = BookingMapper.toBookingDto(bookingOwnerWaiting);
@@ -168,7 +168,7 @@ class ItemMapperTest {
     }
 
     @Test
-    void toItem() {
+    void testToItem() {
         ItemDto item2Dto = ItemMapper.toItemDto(item2);
         Item item2 = ItemMapper.toItem(item2Dto.getId(), user2, item2Dto, itemRequest);
         assertNotNull(item2);

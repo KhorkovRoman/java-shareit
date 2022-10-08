@@ -21,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class UserMapperTest {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
-    User user1;
-    User user2;
+    private User user1;
+    private User user2;
 
-    List<User> userCollection = new ArrayList<>();
+    private List<User> userCollection = new ArrayList<>();
 
     @BeforeEach
     void beforeEach() {
@@ -43,7 +43,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toUserDtoCollection() {
+    void testToUserDtoCollection() {
         List<UserDto> userDtoCollection = UserMapper.toUserDtoCollection(userCollection);
         assertNotNull(userDtoCollection);
         assertEquals(2, userDtoCollection.size());
@@ -51,7 +51,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toUserDto() {
+    void testToUserDto() {
         UserDto userDto = UserMapper.toUserDto(user1);
         assertNotNull(userDto);
         assertEquals(1, userDto.getId());
@@ -59,7 +59,7 @@ class UserMapperTest {
     }
 
     @Test
-    void toUser() {
+    void testToUser() {
         UserDto userDto = UserMapper.toUserDto(user1);
         User user = UserMapper.toUser(userDto);
         assertNotNull(user);

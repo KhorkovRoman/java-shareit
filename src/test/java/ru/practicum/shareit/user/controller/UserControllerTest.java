@@ -33,16 +33,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     @MockBean
-    UserService userService;
+    private UserService userService;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    User user1;
-    UserDto userDto;
+    private User user1;
+    private UserDto userDto;
 
     @BeforeEach
     void beforeEach() {
@@ -51,7 +51,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getAllUsers() throws Exception {
+    void testGetAllUsers() throws Exception {
         when(userService.getAllUsers())
                 .thenReturn(Collections.singletonList(user1));
 
@@ -72,7 +72,7 @@ class UserControllerTest {
     }
 
     @Test
-    void getUserById() throws Exception {
+    void testGetUserById() throws Exception {
         when(userService.getUserById(anyLong()))
                 .thenReturn(user1);
 
@@ -92,7 +92,7 @@ class UserControllerTest {
     }
 
     @Test
-    void createUser() throws Exception {
+    void testCreateUser() throws Exception {
         when(userService.createUser(any(UserDto.class)))
                 .thenReturn(user1);
 
@@ -112,7 +112,7 @@ class UserControllerTest {
     }
 
     @Test
-    void updateUser() throws Exception {
+    void testUpdateUser() throws Exception {
         when(userService.updateUser(anyLong(), any(UserDto.class)))
                 .thenReturn(user1);
 
@@ -132,7 +132,7 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser() throws Exception {
+    void testDeleteUser() throws Exception {
         mockMvc.perform(delete("/users/1")
                         .content(mapper.writeValueAsString(user1))
                         .characterEncoding(StandardCharsets.UTF_8)

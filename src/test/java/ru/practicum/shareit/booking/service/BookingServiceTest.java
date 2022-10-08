@@ -50,67 +50,67 @@ import static org.mockito.Mockito.when;
 @AutoConfigureMockMvc
 class BookingServiceTest {
 
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @MockBean
-    ItemService itemService;
+    private ItemService itemService;
     @MockBean
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
     @MockBean
-    UserRepository userRepository;
+    private UserRepository userRepository;
     @MockBean
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @MockBean
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
     @MockBean
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @MockBean
-    ValidationUser validationUser;
+    private ValidationUser validationUser;
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper mapper;
 
-    User user1;
-    User user2;
-    User user3;
+    private User user1;
+    private User user2;
+    private User user3;
 
-    UserDto userDto;
-    UserDto userDto2;
+    private UserDto userDto;
+    private UserDto userDto2;
 
-    Item item1;
-    Item item2;
-    Item itemNotAvailable;
+    private Item item1;
+    private Item item2;
+    private Item itemNotAvailable;
 
-    ItemDto itemDto;
-    ItemByIdDto itemByIdDto;
+    private ItemDto itemDto;
+    private ItemByIdDto itemByIdDto;
 
-    int from = 0;
-    int size = 20;
-    PageRequest pageRequest;
+    private int from = 0;
+    private int size = 20;
+    private PageRequest pageRequest;
 
-    Booking booking;
-    Booking bookingLast;
-    Booking bookingNext;
-    Booking bookingNext3;
-    Booking bookingNextRejected;
-    Booking bookingCurrent;
-    Booking bookingRejected;
-    Booking bookingEndThenStart;
-    BookingDtoIn bookingDtoInEndThenStart;
-    BookingDtoIn bookingDtoInNoItem;
-    BookingDtoIn bookingDtoInStartBeforeNow;
-    BookingDtoIn bookingDtoInEndBeforeNow;
-    BookingDtoIn bookingDtoInItemNotAvailable;
+    private Booking booking;
+    private Booking bookingLast;
+    private Booking bookingNext;
+    private Booking bookingNext3;
+    private Booking bookingNextRejected;
+    private Booking bookingCurrent;
+    private Booking bookingRejected;
+    private Booking bookingEndThenStart;
+    private BookingDtoIn bookingDtoInEndThenStart;
+    private BookingDtoIn bookingDtoInNoItem;
+    private BookingDtoIn bookingDtoInStartBeforeNow;
+    private BookingDtoIn bookingDtoInEndBeforeNow;
+    private BookingDtoIn bookingDtoInItemNotAvailable;
 
-    BookingDtoIn bookingDtoInLast;
-    BookingDtoIn bookingDtoInNext;
+    private BookingDtoIn bookingDtoInLast;
+    private BookingDtoIn bookingDtoInNext;
 
-    Comment comment1;
-    CommentDtoIn commentDtoIn;
+    private Comment comment1;
+    private CommentDtoIn commentDtoIn;
 
     @BeforeEach
     void beforeEach() {
@@ -217,7 +217,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void createBooking() {
+    void testCreateBooking() {
         when(userRepository.findById(user2.getId()))
                 .thenReturn(Optional.ofNullable(user2));
         when(itemRepository.findById(item1.getId()))
@@ -274,7 +274,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void approveBooking() {
+    void testApproveBooking() {
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
         when(itemRepository.findById(item1.getId()))
@@ -329,7 +329,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getBookingById() {
+    void testGetBookingById() {
         when(userRepository.findById(user2.getId()))
                 .thenReturn(Optional.ofNullable(user2));
         when(itemRepository.findById(item1.getId()))
@@ -356,7 +356,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getBookingsByUser() {
+    void testGetBookingsByUser() {
         //ALL
         when(userRepository.findById(user2.getId()))
                 .thenReturn(Optional.ofNullable(user2));
@@ -442,7 +442,7 @@ class BookingServiceTest {
     }
 
     @Test
-    void getBookingsByOwner() {
+    void testGetBookingsByOwner() {
         //ALL
         when(userRepository.findById(user1.getId()))
                 .thenReturn(Optional.ofNullable(user1));
