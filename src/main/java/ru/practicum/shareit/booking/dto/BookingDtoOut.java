@@ -22,12 +22,4 @@ public class BookingDtoOut {
     @NotNull(groups = {Create.class})
     private Long itemId;
     private BookingStatus status;
-
-
-    public BookingDtoOut(Long id, LocalDateTime start, LocalDateTime end, Long itemId) {
-        this.id = id;
-        this.start = start;
-        this.end = end;
-        this.itemId = itemId;
-    }
 }

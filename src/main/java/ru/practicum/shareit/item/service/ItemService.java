@@ -2,6 +2,9 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -18,8 +21,10 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.requests.model.ItemRequest;
+import ru.practicum.shareit.requests.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,14 +40,17 @@ public class ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Autowired
     public ItemService(ItemRepository itemRepository, UserRepository userRepository,
-                       BookingRepository bookingRepository, CommentRepository commentRepository) {
+                       BookingRepository bookingRepository, CommentRepository commentRepository,
+                       ItemRequestRepository itemRequestRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.commentRepository = commentRepository;
+        this.itemRequestRepository = itemRequestRepository;
     }
 
     private Long itemId = 0L;
@@ -86,8 +94,14 @@ public class ItemService {
                 .orElseThrow(() -> new RuntimeException("Не найден пользователь с id " + userId));
         validateUser(owner, userId);
         validateItem(itemDto);
+        Long itemRequestId = itemDto.getRequestId();
 
-        Item item = ItemMapper.toItem(generateItemId(), owner, itemDto);
+        ItemRequest itemRequest = null;
+        if (itemDto.getRequestId() != null) {
+            itemRequest = itemRequestRepository.findById(itemRequestId)
+                    .orElseThrow(() -> new RuntimeException("Не найден запрос с id " + itemRequestId));
+        }
+        Item item = ItemMapper.toItem(generateItemId(), owner, itemDto, itemRequest);
         return itemRepository.save(item);
     }
 
@@ -134,13 +148,21 @@ public class ItemService {
         if (itemDto.getDescription() == null) {
             itemDto.setDescription(itemFromDB.getDescription());
         }
-        Item item = ItemMapper.toItem(itemId, owner, itemDto);
+
+        ItemRequest itemRequest = null;
+        if (itemDto.getRequestId() != null) {
+            Long itemRequestId = itemDto.getRequestId();
+            itemRequest = itemRequestRepository.findById(itemRequestId)
+                    .orElseThrow(() -> new RuntimeException("Не найден запрос с id " + itemRequestId));
+        }
+
+        Item item = ItemMapper.toItem(itemId, owner, itemDto, itemRequest);
         return itemRepository.save(item);
     }
 
-    public Collection<Item> searchItems(String text) {
+    public Collection<Item> searchItems(String text, PageRequest pageRequest) {
         if (!text.isEmpty()) {
-            Collection<Item> items = itemRepository.findAll();
+            Page<Item> items = itemRepository.findAll(pageRequest);
             return items.stream()
                     .filter(item -> isContain(item.getName(), text) || isContain(item.getDescription(), text))
                     .filter(Item::getAvailable)
@@ -153,27 +175,29 @@ public class ItemService {
         return line.toLowerCase().contains(text.toLowerCase());
     }
 
-    @SuppressWarnings({"checkstyle:WhitespaceAround", "checkstyle:EmptyBlock"})
     public ItemByIdDto getItemById(Long itemId, Long userId) {
         Item item = itemRepository.findById(itemId)
                .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                        "В базе нет предмета c id " + itemId));
         LocalDateTime dateTimeNow = LocalDateTime.now();
-
-        Booking lastBooking = bookingRepository.findLastBookingsByItemId(itemId, dateTimeNow);
+        PageRequest pageRequestForLastBooking =
+                PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
+        Page<Booking> lastBooking = bookingRepository.findLastBookingsByItemId(itemId, dateTimeNow, pageRequestForLastBooking);
         BookingDto lastBookingDto = null;
-        if (lastBooking != null) {
-            lastBookingDto = BookingMapper.toBookingDto(lastBooking);
+        if (!lastBooking.isEmpty()) {
+            lastBookingDto = BookingMapper.toBookingDto(lastBooking.stream().findFirst().get());
         }
 
-        Booking nextBooking = bookingRepository.findNextBookingsByItemId(itemId, dateTimeNow);
+        PageRequest pageRequestForNextBooking =
+                PageRequest.of(0, 1, Sort.by(Sort.Direction.ASC, "start"));
+        Page<Booking> nextBooking = bookingRepository.findNextBookingsByItemId(itemId, dateTimeNow, pageRequestForNextBooking);
         BookingDto nextBookingDto = null;
-        if (nextBooking != null) {
-            nextBookingDto = BookingMapper.toBookingDto(nextBooking);
+        if (!nextBooking.isEmpty()) {
+            nextBookingDto = BookingMapper.toBookingDto(nextBooking.stream().findFirst().get());
         }
 
         Collection<CommentDtoOut> commentList =
-                ItemMapper.toCommentDtoOutCollection(commentRepository.getAllCommentsByItem(itemId));
+                ItemMapper.toCommentDtoCollection(commentRepository.getAllCommentsByItem(itemId));
 
         if (Objects.equals(userId, item.getOwner().getId())) {
             return ItemMapper.toItemByIdDto(item, lastBookingDto, nextBookingDto, commentList);
@@ -182,9 +206,9 @@ public class ItemService {
         }
     }
 
-    public Collection<ItemByIdDto> getAllItemsByUser(Long userId) {
+    public Collection<ItemByIdDto> getAllItemsByUser(Long userId, PageRequest pageRequest) {
 
-        Collection<Item> itemCollection = itemRepository.getAllItemsByUser(userId);
+        Page<Item> itemCollection = itemRepository.getAllItemsByUser(userId, pageRequest);
         return itemCollection.stream()
                 .map(item -> getItemById(item.getId(), userId))
                 .collect(Collectors.toList());

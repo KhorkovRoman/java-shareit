@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.dto.ItemByIdDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.requests.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.Collection;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @Data
 @Service
 public class ItemMapper {
-    public static Collection<CommentDtoOut> toCommentDtoOutCollection(Collection<Comment> comments) {
+    public static Collection<CommentDtoOut> toCommentDtoCollection(Collection<Comment> comments) {
         return comments.stream()
                 .map(ItemMapper::toCommentDto)
                 .collect(Collectors.toList());
@@ -43,6 +44,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .requestId(item.getItemRequest() != null ? item.getItemRequest().getId() : null)
                 .build();
     }
 
@@ -59,13 +61,14 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item toItem(Long itemId, User owner, ItemDto itemDto) {
+    public static Item toItem(Long itemId, User owner, ItemDto itemDto, ItemRequest itemRequest) {
         return Item.builder()
                 .id(itemId)
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
                 .owner(owner)
+                .itemRequest(itemRequest)
                 .build();
     }
 }

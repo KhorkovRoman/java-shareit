@@ -8,10 +8,10 @@ import ru.practicum.shareit.exeption.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.validation.ValidationUser;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Collection<User> getAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
@@ -85,10 +85,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Пользователя c id " + userId + " нет в базе."));
-        if (user == null) {
-            throw new ValidationException(HttpStatus.NOT_FOUND,
-                    "Пользователя c id " + userId + " нет в базе.");
-        }
     }
 
     public void validateUserEmail(User user) {
