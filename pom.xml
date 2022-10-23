@@ -46,6 +46,7 @@
 	</modules>
 
 	<build>
+		<finalName>shareit</finalName>
 		<pluginManagement>
 			<plugins>
 				<plugin>
