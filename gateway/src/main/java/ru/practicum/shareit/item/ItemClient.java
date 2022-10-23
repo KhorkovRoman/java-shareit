@@ -61,6 +61,6 @@ public class ItemClient extends BaseClient {
     }
 
     public void deleteItem(Long itemId) {
-        delete("" + itemId);
+        delete("/" + itemId);
     }
 }
