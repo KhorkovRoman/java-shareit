@@ -34,8 +34,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        validationUser.validateUser(user);
-        validateUserEmail(user);
+        validationUser.validateUserEmail(user);
+        validateUserByEmail(user);
         user.setId(generateUserId());
         log.info("Пользователь с id " + user.getId() + " успешно создан.");
         return userRepository.save(user);
@@ -50,8 +50,8 @@ public class UserServiceImpl implements UserService {
         if (user.getEmail() == null) {
             user.setEmail(getUserById(userId).getEmail());
         }
-        validateUserEmail(user);
-        validationUser.validateUser(user);
+        validateUserByEmail(user);
+        validationUser.validateUserEmail(user);
 
         if (user.getName() == null) {
             user.setName(getUserById(userId).getName());
@@ -77,7 +77,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long userId) {
-        validateUser(userId);
+        //validateUser(userId);
         userRepository.deleteById(userId);
     }
 
@@ -87,7 +87,7 @@ public class UserServiceImpl implements UserService {
                         "Пользователя c id " + userId + " нет в базе."));
     }
 
-    public void validateUserEmail(User user) {
+    public void validateUserByEmail(User user) {
         if (userRepository.findAll().contains(user.getEmail())) {
                 throw new ValidationException(HttpStatus.CONFLICT, "Пользователь c e-mail " + user.getEmail()
                         + " уже есть в базе .");
