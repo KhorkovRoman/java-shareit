@@ -50,8 +50,8 @@ public class UserServiceImpl implements UserService {
         if (user.getEmail() == null) {
             user.setEmail(getUserById(userId).getEmail());
         }
-        validateUserByEmail(user);
         validationUser.validateUserEmail(user);
+        validateUserByEmail(user);
 
         if (user.getName() == null) {
             user.setName(getUserById(userId).getName());
@@ -77,14 +77,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long userId) {
-        //validateUser(userId);
+        validateUser(userId);
+        log.info("Пользователь c id " + userId + " найден в базе.");
         userRepository.deleteById(userId);
     }
 
     public void validateUser(Long userId) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
-                        "Пользователя c id " + userId + " нет в базе."));
+                        "В базе нет пользователя c id " + userId));
     }
 
     public void validateUserByEmail(User user) {
@@ -93,4 +94,5 @@ public class UserServiceImpl implements UserService {
                         + " уже есть в базе .");
         }
     }
+
 }
