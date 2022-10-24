@@ -34,7 +34,7 @@ public class BookingController {
 	@PatchMapping("/{bookingId}")
 	public ResponseEntity<Object> approveBooking(@RequestHeader(USER_ID_HEADER) Long ownerId,
 								                @PathVariable Long bookingId,
-								                @RequestParam Boolean approved) {
+								                @RequestParam("approved") Boolean approved) {
 		log.info("Получен Patch запрос к эндпоинту /bookings/{bookingId}?approved={approved}");
 		return bookingClient.approveBooking(ownerId, bookingId, approved);
 	}
