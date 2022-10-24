@@ -35,11 +35,11 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public Booking approveBooking(@RequestHeader(USER_ID_HEADER) Long ownerId,
+    public BookingDto approveBooking(@RequestHeader(USER_ID_HEADER) Long ownerId,
                                   @PathVariable Long bookingId,
-                                  @RequestParam boolean approved) {
+                                  @RequestParam Boolean approved) {
         log.info("Получен Patch запрос к эндпоинту /bookings/{bookingId}?approved={approved}");
-        return bookingService.approveBooking(ownerId, bookingId, approved);
+        return BookingMapper.toBookingDto(bookingService.approveBooking(ownerId, bookingId, approved));
     }
 
     @GetMapping("/{bookingId}")

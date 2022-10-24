@@ -24,32 +24,30 @@ public class BookingController {
 
 	private final BookingClient bookingClient;
 
-	//createBooking
 	@PostMapping
-	public ResponseEntity<Object> bookItem(@RequestHeader(USER_ID_HEADER) long userId,
+	public ResponseEntity<Object> createBooking(@RequestHeader(USER_ID_HEADER) Long userId,
 										   @RequestBody @Valid BookItemRequestDto requestDto) {
 		log.info("Creating booking {}, userId={}", requestDto, userId);
-		return bookingClient.bookItem(userId, requestDto);
+		return bookingClient.createBooking(userId, requestDto);
 	}
 
 	@PatchMapping("/{bookingId}")
 	public ResponseEntity<Object> approveBooking(@RequestHeader(USER_ID_HEADER) Long ownerId,
 								                @PathVariable Long bookingId,
-								                @RequestParam boolean approved) {
+								                @RequestParam Boolean approved) {
 		log.info("Получен Patch запрос к эндпоинту /bookings/{bookingId}?approved={approved}");
 		return bookingClient.approveBooking(ownerId, bookingId, approved);
 	}
 
-    //getBookingById
 	@GetMapping("/{bookingId}")
-	public ResponseEntity<Object> getBooking(@RequestHeader(USER_ID_HEADER) long userId,
+	public ResponseEntity<Object> getBookingById(@RequestHeader(USER_ID_HEADER) Long userId,
 											 @PathVariable Long bookingId) {
 		log.info("Get booking {}, userId={}", bookingId, userId);
-		return bookingClient.getBooking(userId, bookingId);
+		return bookingClient.getBookingById(userId, bookingId);
 	}
 
 	@GetMapping
-	public ResponseEntity<Object> getBookings(@RequestHeader(USER_ID_HEADER) long userId,
+	public ResponseEntity<Object> getBookings(@RequestHeader(USER_ID_HEADER) Long userId,
 											  @RequestParam(name = "state", defaultValue = "all") String stateParam,
 							  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
 							  	  @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {

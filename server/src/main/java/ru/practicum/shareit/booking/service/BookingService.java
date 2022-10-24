@@ -114,7 +114,7 @@ public class BookingService {
     }
 
     public Collection<Booking> getBookingsByUser(Long userId, State state, PageRequest pageRequest) {
-        User user = userRepository.findById(userId)
+        userRepository.findById(userId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь с id " + userId));
         LocalDateTime dateTimeNow = LocalDateTime.now();
@@ -140,7 +140,7 @@ public class BookingService {
     }
 
     public Collection<Booking> getBookingsByOwner(Long ownerId, State state, PageRequest pageRequest) {
-        User user = userRepository.findById(ownerId)
+        userRepository.findById(ownerId)
                 .orElseThrow(() -> new ValidationException(HttpStatus.NOT_FOUND,
                         "Не найден пользователь с id " + ownerId));
         LocalDateTime dateTimeNow = LocalDateTime.now();
