@@ -40,18 +40,18 @@ public class ItemController {
         return itemClient.createComment(authorId, itemId, commentDtoIn);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<Object> searchItems(@RequestParam String text,
+                                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                              @Positive @RequestParam(defaultValue = "20") Integer size) {
+        log.info("Получен GET запрос к эндпоинту /items/search?text={}", text);
+        return itemClient.searchItems(text, from, size);
+    }
+
     @GetMapping("/{itemId}")
     public ResponseEntity<Object> getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
                                               @PathVariable Long itemId) {
         return itemClient.getItemById(userId, itemId);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<Object> searchItems(@RequestParam String text,
-                              @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
-                                    @Positive @RequestParam(defaultValue = "20") Integer size) {
-        log.info("Получен GET запрос к эндпоинту /items/search?text={}", text);
-        return itemClient.searchItems(text, from, size);
     }
 
     @GetMapping
