@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoItem;
 import ru.practicum.shareit.common.Create;
 
 import javax.validation.constraints.NotBlank;
@@ -24,9 +24,9 @@ public class ItemByIdDto {
     @NotNull(groups = {Create.class})
     private Boolean available;
     @NotNull(groups = {Create.class})
-    private BookingDto lastBooking;
+    private BookingDtoItem lastBooking;
     @NotNull(groups = {Create.class})
-    private BookingDto nextBooking;
+    private BookingDtoItem nextBooking;
     @NotNull(groups = {Create.class})
     private Collection<CommentDtoOut> comments;
 }

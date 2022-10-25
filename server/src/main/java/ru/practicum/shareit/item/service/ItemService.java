@@ -7,7 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoItem;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -183,17 +183,17 @@ public class ItemService {
         PageRequest pageRequestForLastBooking =
                 PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "start"));
         Page<Booking> lastBooking = bookingRepository.findLastBookingsByItemId(itemId, dateTimeNow, pageRequestForLastBooking);
-        BookingDto lastBookingDto = null;
+        BookingDtoItem lastBookingDto = null;
         if (!lastBooking.isEmpty()) {
-            lastBookingDto = BookingMapper.toBookingDto(lastBooking.stream().findFirst().get());
+            lastBookingDto = BookingMapper.toBookingDtoItem(lastBooking.stream().findFirst().get());
         }
 
         PageRequest pageRequestForNextBooking =
                 PageRequest.of(0, 1, Sort.by(Sort.Direction.ASC, "start"));
         Page<Booking> nextBooking = bookingRepository.findNextBookingsByItemId(itemId, dateTimeNow, pageRequestForNextBooking);
-        BookingDto nextBookingDto = null;
+        BookingDtoItem nextBookingDto = null;
         if (!nextBooking.isEmpty()) {
-            nextBookingDto = BookingMapper.toBookingDto(nextBooking.stream().findFirst().get());
+            nextBookingDto = BookingMapper.toBookingDtoItem(nextBooking.stream().findFirst().get());
         }
 
         Collection<CommentDtoOut> commentList =

@@ -29,6 +29,7 @@ public class ItemController {
     @PostMapping
     public ItemDto createItem(@RequestHeader(USER_ID_HEADER) Long userId,
                               @RequestBody ItemDto itemDto) {
+        log.info("Получен запрос к эндпоинту POST/items");
         return ItemMapper.toItemDto(itemService.createItem(userId, itemDto));
     }
 
@@ -36,29 +37,31 @@ public class ItemController {
     public CommentDtoOut createComment(@RequestHeader(USER_ID_HEADER) Long authorId,
                                        @PathVariable Long itemId,
                                        @RequestBody CommentDtoIn commentDtoIn) {
+        log.info("Получен запрос к эндпоинту POST/items/{}/comment", itemId);
         return ItemMapper.toCommentDto(itemService.createComment(authorId, itemId, commentDtoIn));
-    }
-
-    @GetMapping("/{itemId}")
-    public ItemByIdDto getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
-                                   @PathVariable Long itemId) {
-        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping("/search")
     public Collection<ItemDto> searchItems(@RequestParam String text,
                                            @RequestParam(defaultValue = "0") Integer from,
                                            @RequestParam(defaultValue = "20") Integer size) {
-        log.info("Получен GET запрос к эндпоинту /items/search?text={}", text);
+        log.info("Получен запрос к эндпоинту GET/items/search?text={}", text);
         final PageRequest pageRequest = findPageRequest(from, size);
         return ItemMapper.toItemDtoCollection(itemService.searchItems(text, pageRequest));
+    }
+
+    @GetMapping("/{itemId}")
+    public ItemByIdDto getItemById(@RequestHeader(USER_ID_HEADER) Long userId,
+                                   @PathVariable Long itemId) {
+        log.info("Получен запрос к эндпоинту GET/items/{}", itemId);
+        return itemService.getItemById(itemId, userId);
     }
 
     @GetMapping
     public Collection<ItemByIdDto> getAllItems(@RequestHeader(USER_ID_HEADER) Long userId,
                                                @RequestParam(defaultValue = "0") Integer from,
                                                @RequestParam(defaultValue = "20") Integer size) {
-        log.info("Получен GET запрос к эндпоинту /items");
+        log.info("Получен запрос к эндпоинту GET/items");
         final PageRequest pageRequest = findPageRequest(from, size);
         return itemService.getAllItemsByUser(userId, pageRequest);
     }
@@ -67,12 +70,14 @@ public class ItemController {
     public ItemDto updateItem(@RequestHeader(USER_ID_HEADER) Long userId,
                               @PathVariable Long itemId,
                               @RequestBody ItemDto itemDto) {
+        log.info("Получен запрос к эндпоинту PATCH/items/{}", itemId);
         return ItemMapper.toItemDto(itemService.updateItem(userId, itemId, itemDto));
     }
 
     @DeleteMapping("/{itemId}")
     public void deleteItem(@RequestHeader(USER_ID_HEADER) int userId,
                            @PathVariable Long itemId) {
+        log.info("Получен запрос к эндпоинту DELETE/items/{}", itemId);
         itemService.deleteItem(itemId);
     }
 

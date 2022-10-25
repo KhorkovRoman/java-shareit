@@ -55,7 +55,7 @@ public class BookingController {
                                            @RequestParam(defaultValue = "0") Integer from,
                                            @RequestParam(defaultValue = "20") Integer size) {
         State state = BookingStatus.findState(stateText);
-        log.info("Получен Get запрос к эндпоинту /bookings?state={state}from={}size={}", stateText, from, size);
+        log.info("Получен Get запрос к эндпоинту /bookings?state={}from={}size={}", stateText, from, size);
         final PageRequest pageRequest = findPageRequest(from, size);
         return bookingService.getBookingsByUser(userId, state, pageRequest);
     }
@@ -66,7 +66,7 @@ public class BookingController {
                                           @RequestParam(defaultValue = "0") Integer from,
                                           @RequestParam(defaultValue = "20") Integer size) {
         State state = BookingStatus.findState(stateText);
-        log.info("Получен Get запрос к эндпоинту /bookings/owner?state={state}from={}size={}", stateText, from, size);
+        log.info("Получен Get запрос к эндпоинту /bookings/owner?state={}from={}size={}", stateText, from, size);
         final PageRequest pageRequest = findPageRequest(from, size);
         return bookingService.getBookingsByOwner(ownerId, state, pageRequest);
     }

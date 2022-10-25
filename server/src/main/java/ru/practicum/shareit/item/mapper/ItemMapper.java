@@ -2,7 +2,7 @@ package ru.practicum.shareit.item.mapper;
 
 import lombok.Data;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoItem;
 import ru.practicum.shareit.item.dto.CommentDtoOut;
 import ru.practicum.shareit.item.dto.ItemByIdDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -48,7 +48,7 @@ public class ItemMapper {
                 .build();
     }
 
-    public static ItemByIdDto toItemByIdDto(Item item, BookingDto lastBookingId, BookingDto nextBookingId,
+    public static ItemByIdDto toItemByIdDto(Item item, BookingDtoItem lastBookingId, BookingDtoItem nextBookingId,
                                             Collection<CommentDtoOut> commentList) {
         return ItemByIdDto.builder()
                 .id(item.getId())
