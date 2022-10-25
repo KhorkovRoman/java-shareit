@@ -9,6 +9,8 @@ import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
@@ -26,23 +28,24 @@ public class BookingController {
 
 	@PostMapping
 	public ResponseEntity<Object> createBooking(@RequestHeader(USER_ID_HEADER) Long userId,
-										   @RequestBody @Valid BookItemRequestDto requestDto) {
+										        @RequestBody @Valid BookItemRequestDto requestDto) {
 		log.info("Creating booking {}, userId={}", requestDto, userId);
 		return bookingClient.createBooking(userId, requestDto);
 	}
 
 	@PatchMapping("/{bookingId}")
-	public ResponseEntity<Object> approveBooking(@RequestHeader(USER_ID_HEADER) Long ownerId,
-								                @PathVariable Long bookingId,
-								                @RequestParam("approved") Boolean approved) {
-		log.info("Получен Patch запрос к эндпоинту /bookings/{bookingId}?approved={approved}");
+	public ResponseEntity<Object> approveBooking(@RequestHeader(USER_ID_HEADER) @Min(1) @Max(1000000) Long ownerId,
+								                 @PathVariable  Long bookingId,
+								                 @RequestParam("approved") Boolean approved) {
+		log.info("Received request to endpoint PATCH/bookings/{}?approved={} from ownerId={}",
+				                                               bookingId, approved, ownerId);
 		return bookingClient.approveBooking(ownerId, bookingId, approved);
 	}
 
 	@GetMapping("/{bookingId}")
-	public ResponseEntity<Object> getBookingById(@RequestHeader(USER_ID_HEADER) Long userId,
-											 @PathVariable Long bookingId) {
-		log.info("Get booking {}, userId={}", bookingId, userId);
+	public ResponseEntity<Object> getBookingById(@RequestHeader(USER_ID_HEADER) @Min(1) @Max(1000000) Long userId,
+											 @PathVariable  Long bookingId) {
+		log.info("Received request to endpoint GET/bookings/{} from userId={}", bookingId, userId);
 		return bookingClient.getBookingById(userId, bookingId);
 	}
 

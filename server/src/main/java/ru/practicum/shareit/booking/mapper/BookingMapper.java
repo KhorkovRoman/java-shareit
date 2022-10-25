@@ -23,10 +23,8 @@ public class BookingMapper {
                 .start(booking.getStart())
                 .end(booking.getEnd())
                 .item(booking.getItem())
-                //.itemId(booking.getItem().getId())
                 .status(booking.getStatus())
                 .booker(booking.getBooker())
-                //.bookerId(booking.getBooker().getId())
                 .build();
     }
 
@@ -36,9 +34,7 @@ public class BookingMapper {
                 .start(booking.getStart())
                 .end(booking.getEnd())
                 .item(booking.getItem())
-                //.itemId(booking.getItem().getId())
                 .status(booking.getStatus())
-                //.booker(booking.getBooker())
                 .bookerId(booking.getBooker().getId())
                 .build();
     }

@@ -25,18 +25,11 @@ public class UserServiceImpl implements UserService {
         this.validationUser = validationUser;
     }
 
-    private Long userId = 0L;
-
-    private Long generateUserId() {
-        return ++userId;
-    }
-
     @Override
     public User createUser(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
         validationUser.validateUserEmail(user);
         validateUserByEmail(user);
-        user.setId(generateUserId());
         log.info("Пользователь с id " + user.getId() + " успешно создан.");
         return userRepository.save(user);
     }

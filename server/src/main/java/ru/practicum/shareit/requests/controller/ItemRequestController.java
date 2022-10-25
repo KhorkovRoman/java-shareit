@@ -26,13 +26,13 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemRequestDto createItemRequest(@RequestHeader(USER_ID_HEADER) Long userId,
-                                                @RequestBody ItemRequestDtoIn itemRequestDtoIn) {
+                                            @RequestBody ItemRequestDtoIn itemRequestDtoIn) {
         return ItemRequestMapper.toItemRequestDto(itemRequestService.createItemRequest(userId, itemRequestDtoIn));
     }
 
     @GetMapping("/{requestId}")
     public ItemRequestByIdDto getItemRequestById(@RequestHeader(USER_ID_HEADER) Long userId,
-                                                     @PathVariable Long requestId) {
+                                                 @PathVariable Long requestId) {
         return itemRequestService.getItemRequestById(requestId, userId);
     }
 

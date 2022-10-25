@@ -24,6 +24,5 @@ public class BookingDtoItem {
     @NotNull(groups = {Create.class})
     private Item item;
     private BookingStatus status;
-    //private User booker;
     private Long bookerId;
 }
