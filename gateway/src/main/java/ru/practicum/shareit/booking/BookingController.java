@@ -7,6 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
+import ru.practicum.shareit.common.ValidationPageParam;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Max;
@@ -23,6 +24,8 @@ import javax.validation.constraints.PositiveOrZero;
 public class BookingController {
 
 	private static final String USER_ID_HEADER = "X-Sharer-User-Id";
+
+	private ValidationPageParam validationPageParam;
 
 	private final BookingClient bookingClient;
 
@@ -52,8 +55,9 @@ public class BookingController {
 	@GetMapping
 	public ResponseEntity<Object> getBookingsByUser(@RequestHeader(USER_ID_HEADER) Long userId,
 											  @RequestParam(name = "state", defaultValue = "all") String stateParam,
-							  @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-							  	    @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+							  @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+							  	    @Positive @RequestParam(defaultValue = "20") Integer size) {
+		validatePage(from, size);
 		BookingState state = BookingState.from(stateParam)
 				.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
 		log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, userId, from, size);
@@ -63,11 +67,17 @@ public class BookingController {
 	@GetMapping("/owner")
 	public ResponseEntity<Object> getBookingsByOwner(@RequestHeader(USER_ID_HEADER) Long ownerId,
 											@RequestParam(name = "state", defaultValue = "all") String stateParam,
-							@PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
-				     			  @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
+							@PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+				     			  @Positive @RequestParam(defaultValue = "20") Integer size) {
+		validatePage(from, size);
 		BookingState state = BookingState.from(stateParam)
 				.orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));
 		log.info("Get booking with state {}, userId={}, from={}, size={}", stateParam, ownerId, from, size);
 		return bookingClient.getBookingsByOwner(ownerId, state, from, size);
+	}
+
+	private void validatePage(Integer from, Integer size) {
+		validationPageParam = new ValidationPageParam(from, size);
+		validationPageParam.validatePageParam();
 	}
 }
